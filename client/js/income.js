@@ -86,6 +86,7 @@
     L.$("#income-id").value = income ? income.id : "";
     L.$("#income-amount").value = income ? income.amount : "";
     L.$("#income-category").value = income ? income.category : L.INCOME_CATEGORIES[0];
+    L.$("#income-method").value = income?.payment_method || "cash";
     L.$("#income-date").value = income ? income.income_date : L.todayISO();
     L.$("#income-note").value = income ? (income.note || "") : "";
     L.$("#income-modal").classList.remove("hidden");
@@ -110,6 +111,7 @@
     const payload = {
       amount: parseFloat(L.$("#income-amount").value),
       category: L.$("#income-category").value,
+      payment_method: L.$("#income-method").value,
       income_date: L.$("#income-date").value,
       note: L.$("#income-note").value.trim() || null,
     };

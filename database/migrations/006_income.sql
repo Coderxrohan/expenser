@@ -8,6 +8,8 @@ create table if not exists public.incomes (
   category text not null,
   note text,
   income_date date not null default current_date,
+  payment_method text not null default 'cash'
+    check (payment_method in ('cash', 'upi', 'credit_card', 'debit_card', 'bank_transfer', 'wallet')),
   currency text not null default 'INR',
   created_at timestamptz not null default now()
 );

@@ -2,7 +2,9 @@
 // Ledger — incomes controller
 // ============================================================
 const incomeService = require("../services/income.service");
-const { parseAmount, parseDate, cleanString } = require("../utils/validation");
+const {
+  parseAmount, parseDate, cleanString, parsePaymentMethod,
+} = require("../utils/validation");
 
 const INCOME_CATEGORIES = [
   "Salary", "Freelance", "Business", "Investment", "Gift", "Other",
@@ -25,6 +27,7 @@ function buildPayload(body, { partial = false } = {}) {
     payload.income_date = parseDate(body.income_date) || new Date().toISOString().slice(0, 10);
   }
   if (!partial || body.note !== undefined) payload.note = cleanString(body.note, { field: "note" });
+  if (body.payment_method !== undefined) payload.payment_method = parsePaymentMethod(body.payment_method);
   if (body.currency !== undefined) payload.currency = String(body.currency || "INR").toUpperCase().slice(0, 3);
   return payload;
 }
