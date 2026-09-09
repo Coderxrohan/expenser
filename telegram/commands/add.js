@@ -32,8 +32,8 @@ module.exports = async function add(message, { sendMessage }) {
   const user_id = await ledgerUserId();
 
   const { data, error } = await client()
-    .from("expenses")
-    .insert({ user_id, amount, category, note, expense_date: parseDate(new Date().toISOString().slice(0, 10)) })
+    .from("transactions")
+    .insert({ user_id, amount, category, note, type: "expense", expense_date: parseDate(new Date().toISOString().slice(0, 10)) })
     .select()
     .single();
   if (error) throw new Error(error.message);

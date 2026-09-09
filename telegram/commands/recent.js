@@ -6,8 +6,9 @@ module.exports = async function recent(message, { sendMessage }) {
   const user_id = await ledgerUserId();
 
   const { data, error } = await supabase
-    .from("expenses")
+    .from("transactions")
     .select("amount, category, note, expense_date")
+      .eq("type", "expense")
     .eq("user_id", user_id)
     .order("expense_date", { ascending: false })
     .limit(10);

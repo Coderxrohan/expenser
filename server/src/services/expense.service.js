@@ -15,8 +15,9 @@ function clientFor(token) {
 
 async function listExpenses(token, { from, to, category, search, limit = 500 } = {}) {
   let query = clientFor(token)
-    .from("expenses")
+    .from("transactions")
     .select("*")
+    .eq("type", "expense")
     .order("expense_date", { ascending: false })
     .limit(limit);
 
@@ -32,8 +33,9 @@ async function listExpenses(token, { from, to, category, search, limit = 500 } =
 
 async function getExpense(token, id) {
   const { data, error } = await clientFor(token)
-    .from("expenses")
+    .from("transactions")
     .select("*")
+    .eq("type", "expense")
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -42,8 +44,8 @@ async function getExpense(token, id) {
 
 async function createExpense(token, payload) {
   const { data, error } = await clientFor(token)
-    .from("expenses")
-    .insert(payload)
+    .from("transactions")
+    .insert({ ...payload, type: "expense" })
     .select()
     .single();
   if (error) throw new Error(error.message);
@@ -52,7 +54,7 @@ async function createExpense(token, payload) {
 
 async function updateExpense(token, id, payload) {
   const { data, error } = await clientFor(token)
-    .from("expenses")
+    .from("transactions")
     .update(payload)
     .eq("id", id)
     .select()
@@ -62,7 +64,7 @@ async function updateExpense(token, id, payload) {
 }
 
 async function deleteExpense(token, id) {
-  const { error } = await clientFor(token).from("expenses").delete().eq("id", id);
+  const { error } = await clientFor(token).from("transactions").delete().eq("type", "expense").eq("id", id);
   if (error) throw new Error(error.message);
 }
 

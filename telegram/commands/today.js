@@ -7,8 +7,9 @@ module.exports = async function today(message, { sendMessage }) {
   const day = new Date().toISOString().slice(0, 10);
 
   const { data, error } = await supabase
-    .from("expenses")
+    .from("transactions")
     .select("amount, category, note")
+      .eq("type", "expense")
     .eq("user_id", user_id)
     .eq("expense_date", day)
     .order("created_at");

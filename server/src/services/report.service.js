@@ -15,8 +15,9 @@ function clientFor(token) {
 
 async function fetchExpenses(token, { from, to } = {}) {
   let query = clientFor(token)
-    .from("expenses")
+    .from("transactions")
     .select("*")
+    .eq("type", "expense")
     .order("expense_date", { ascending: true });
   if (from) query = query.gte("expense_date", from);
   if (to) query = query.lte("expense_date", to);
@@ -55,17 +56,13 @@ async function reportPack(token, { from, to } = {}) {
 
 async function exportBackup(token) {
   const db = clientFor(token);
-  const [expenses, budgets] = await Promise.all([
-    db.from("expenses").select("*"),
-    db.from("budgets").select("*"),
-  ]);
+  const expenses = await db.from("transactions").select("*").eq("type", "expense");
   if (expenses.error) throw new Error(expenses.error.message);
-  if (budgets.error) throw new Error(budgets.error.message);
   return {
     version: 1,
     exportedAt: new Date().toISOString(),
     expenses: expenses.data || [],
-    budgets: budgets.data || [],
+    budgets: [],
   };
 }
 
@@ -75,7 +72,7 @@ async function importBackup(token, userId, backup) {
     throw new ApiError(400, 'Backup JSON must have an "expenses" array.');
   }
   const db = clientFor(token);
-  const rows = backup.expenses.map((e) => ({
+  const rows0 = backup.expenses.map((e) => ({
     user_id: userId,
     amount: Number(e.amount),
     category: e.category || "Other",
@@ -84,7 +81,8 @@ async function importBackup(token, userId, backup) {
     payment_method: e.payment_method || "cash",
     currency: e.currency || "INR",
   }));
-  const { error } = await db.from("expenses").insert(rows);
+  const rows = rows0.map((r) => ({ ...r, type: "expense" }));
+  const { error } = await db.from("transactions").insert(rows);
   if (error) throw new Error(error.message);
   return { imported: rows.length };
 }

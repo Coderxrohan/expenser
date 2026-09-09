@@ -70,11 +70,12 @@ exports.bankImport = async (req, res) => {
       note: String(description).slice(0, 200),
       expense_date: String(date).slice(0, 10),
       payment_method: "bank_transfer",
+      type: "expense",
     });
   }
   if (!expenses.length) throw new ApiError(400, "No usable rows found (need date + amount columns).");
 
-  const { error } = await client.from("expenses").insert(expenses);
+  const { error } = await client.from("transactions").insert(expenses);
   if (error) throw new Error(error.message);
   res.json({ imported: expenses.length });
 };

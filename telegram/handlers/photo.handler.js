@@ -69,8 +69,9 @@ async function confirmDraft(sendMessage, chatId) {
   draft = null;
 
   const { data, error } = await supabase
-    .from("expenses")
+    .from("transactions")
     .insert({
+      type: "expense",
       user_id: d.user_id,
       amount: d.total,
       category: d.category,

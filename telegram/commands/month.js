@@ -12,14 +12,16 @@ module.exports = async function month(message, { sendMessage }) {
 
   const [thisRes, lastRes] = await Promise.all([
     supabase
-      .from("expenses")
+      .from("transactions")
       .select("amount, category")
+      .eq("type", "expense")
       .eq("user_id", user_id)
       .gte("expense_date", start)
       .lte("expense_date", end),
     supabase
-      .from("expenses")
+      .from("transactions")
       .select("amount")
+      .eq("type", "expense")
       .eq("user_id", user_id)
       .gte("expense_date", pStart)
       .lte("expense_date", pEnd),

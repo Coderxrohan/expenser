@@ -11,8 +11,9 @@ module.exports = async function budget(message, { sendMessage }) {
   const [budgets, spent] = await Promise.all([
     supabase.from("budgets").select("*").eq("user_id", user_id).order("category"),
     supabase
-      .from("expenses")
+      .from("transactions")
       .select("amount, category")
+      .eq("type", "expense")
       .eq("user_id", user_id)
       .gte("expense_date", start)
       .lte("expense_date", end),
