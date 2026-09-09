@@ -305,8 +305,8 @@
 /* ---------- donut chart ---------- */
 .donut-wrap {
   position: relative;
-  width: 210px;
-  height: 210px;
+  width: 252px;
+  height: 252px;
   margin: 0 auto 1.5rem;
 }
 .donut-svg { overflow: visible; }

@@ -7,10 +7,13 @@
   const DONUT_COLORS = ["#a9843a", "#5f8267", "#9c4a3d", "#2c4c44", "#c9b37a", "#7a9e83", "#b97363", "#767c6c"];
 
   // Radar chart: one spoke per category, dot at each category's spend.
-  function renderDonut(rows, total) {
+  function renderDonut(rowsArg, total) {
+    let rows = rowsArg;
     const svg = L.$("#donut-chart");
     L.$("#donut-center-figure").textContent = L.money(total);
 
+    // show only the top 6 categories by spend
+    rows = [...rows].sort((a, b) => b[1] - a[1]).slice(0, 6);
     const C = 60, R = 40; // center and max radius
     const max = Math.max(...rows.map(([, amt]) => amt), 1);
 
