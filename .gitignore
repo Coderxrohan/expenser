@@ -1,0 +1,17 @@
+# Secrets
+.env
+local-notes.txt
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log*
+package-lock.json.bak
+
+# Generated / local artifacts
+storage/*
+!storage/.gitkeep
+*.log
