@@ -18,6 +18,7 @@ const budgetsRoutes = require("./routes/budgets.routes");
 const reportsRoutes = require("./routes/reports.routes");
 const receiptsRoutes = require("./routes/receipts.routes");
 const telegramLinksRoutes = require("./routes/telegram_links.routes");
+const categoriesRoutes = require("./routes/categories.routes");
 
 const app = express();
 app.disable("x-powered-by");
@@ -37,6 +38,7 @@ app.use("/api/budgets", budgetsRoutes);
 app.use("/api/reports", reportsRoutes);
 app.use("/api/receipts", receiptsRoutes);
 app.use("/api/telegram/links", telegramLinksRoutes);
+app.use("/api/categories", categoriesRoutes);
 
 // Telegram webhook (token comes from .env)
 try {

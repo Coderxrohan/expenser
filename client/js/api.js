@@ -65,6 +65,13 @@
 
     analytics: () => request("/api/expenses/analytics"),
 
+    categories: {
+      list: () => request("/api/categories"),
+      create: (payload) => request("/api/categories", { method: "POST", body: payload }),
+      update: (id, payload) => request(`/api/categories/${id}`, { method: "PATCH", body: payload }),
+      remove: (id) => request(`/api/categories/${id}`, { method: "DELETE" }),
+    },
+
     telegramLinks: {
       list: () => request("/api/telegram/links"),
       create: (payload) => request("/api/telegram/links", { method: "POST", body: payload }),

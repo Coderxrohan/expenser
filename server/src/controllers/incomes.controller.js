@@ -6,17 +6,11 @@ const {
   parseAmount, parseDate, cleanString, parsePaymentMethod,
 } = require("../utils/validation");
 
-const INCOME_CATEGORIES = [
-  "Salary", "Freelance", "Business", "Investment", "Gift", "Other",
-];
-
+// Categories are user-managed (Settings on the Connectors page).
 function parseIncomeCategory(v) {
-  if (v === undefined || v === null || v === "") return "Other";
-  if (!INCOME_CATEGORIES.includes(v)) {
-    const { ApiError } = require("../middleware/error");
-    throw new ApiError(400, `Unknown income category "${v}".`);
-  }
-  return v;
+  const name = String(v ?? "").trim().replace(/\s+/g, " ").slice(0, 40);
+  if (!name) return "Other";
+  return name;
 }
 
 function buildPayload(body, { partial = false } = {}) {

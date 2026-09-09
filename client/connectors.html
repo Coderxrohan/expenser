@@ -31,6 +31,7 @@
       <a class="nav-tab" href="income.html">Income</a>
       <a class="nav-tab" href="analytics.html">Analytics</a>
       <a class="nav-tab active" href="connectors.html">Connectors</a>
+        <a class="nav-tab" href="settings.html">Settings</a>
     </nav>
 
     <div class="sidebar-footer">
@@ -74,25 +75,34 @@
           <input type="text" id="tg-label" placeholder="Label (optional)" autocomplete="off" maxlength="60" />
           <button class="btn btn-primary" type="submit">Link chat</button>
         </form>
+        <p id="tg-locked-note" class="tg-hint hidden">A chat is already linked to this account — unlink it first to link a different one.</p>
         <p id="tg-error" class="form-error hidden"></p>
         <div id="tg-links" class="tg-links"><p class="empty-state">Loading…</p></div>
       </section>
 
-      <!-- Future connectors: add another .connector-card here
-           (e.g. WhatsApp, Email-in, Google Sheets sync) -->
+      <!-- Email connector (inactive until email-in support ships) -->
       <section class="panel connector-card connector-card-soon">
         <div class="connector-head">
-          <span class="connector-icon" aria-hidden="true">✉️</span>
+          <span class="connector-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M2 5.5A2.5 2.5 0 0 1 4.5 3h15A2.5 2.5 0 0 1 22 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-15A2.5 2.5 0 0 1 2 18.5v-13zm2.3-.5 7.2 6.1c.3.25.7.25 1 0L19.7 5H4.3zM20 7.2l-6.3 5.3a2.8 2.8 0 0 1-3.4 0L4 7.2v11.3h16V7.2z"/></svg>
+          </span>
           <div>
-            <h2 class="panel-title">Email-in</h2>
+            <h2 class="panel-title">Email</h2>
             <p class="connector-sub">Forward receipts by email</p>
           </div>
-          <span class="connector-status connector-status-soon">Coming soon</span>
+          <span class="connector-status connector-status-off">Inactive</span>
         </div>
-        <p class="tg-hint">More connectors are on the way.</p>
+        <p class="tg-hint">Add the email you'd forward receipts from. Linking is
+          disabled until the email-in service is switched on.</p>
+        <form class="tg-form" onsubmit="return false;">
+          <input type="email" placeholder="you@example.com" disabled />
+          <input type="text" placeholder="Label (optional)" disabled />
+          <button class="btn btn-primary" type="button" disabled>Link email</button>
+        </form>
       </section>
     </div>
-  </main>
+
+</main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -100,5 +110,6 @@
 <script src="js/app.js"></script>
 <script src="js/api.js"></script>
 <script src="js/telegram.js"></script>
+<script src="js/categories.js"></script>
 </body>
 </html>

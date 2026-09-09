@@ -43,10 +43,12 @@ function parseDate(v, field = "date") {
   return s;
 }
 
+// Categories are user-managed (Settings on the Connectors page), so
+// accept any non-empty name instead of a fixed whitelist.
 function parseCategory(v) {
-  if (v === undefined || v === null || v === "") return "Other";
-  assert(CATEGORIES.includes(v), `Unknown category "${v}".`);
-  return v;
+  const name = String(v ?? "").trim().replace(/\s+/g, " ").slice(0, 40);
+  if (!name) return "Other";
+  return name;
 }
 
 function parsePaymentMethod(v) {

@@ -39,6 +39,16 @@ async function createLink(token, { chat_id, label, user_id }) {
     const { ApiError } = require("../middleware/error");
     throw new ApiError(401, "Not signed in.");
   }
+  // One linked chat per account — unlink first to link a different one.
+  const existing = await clientFor(token)
+    .from("telegram_links")
+    .select("id")
+    .eq("user_id", user_id)
+    .limit(1);
+  if (existing.data && existing.data.length) {
+    const { ApiError } = require("../middleware/error");
+    throw new ApiError(409, "This account already has a linked chat. Unlink it first.");
+  }
   const { data, error } = await clientFor(token)
     .from("telegram_links")
     .insert({ chat_id: chatId, label: label || null, user_id })

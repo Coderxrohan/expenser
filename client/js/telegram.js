@@ -13,6 +13,20 @@
   const labelInput = L.$("#tg-label");
   const errorEl = L.$("#tg-error");
 
+  // Privacy: never show the full chat id once linked.
+  function maskChatId(id) {
+    const s = String(id);
+    return s.length > 4 ? s.slice(0, 2) + "•••••" + s.slice(-2) : "•••••";
+  }
+
+  // One chat per account: the add form locks while a link exists.
+  function setFormLocked(locked) {
+    [chatInput, labelInput].forEach((el) => (el.disabled = locked));
+    form.querySelector("button[type=submit]").disabled = locked;
+    form.classList.toggle("tg-form-locked", locked);
+    L.$("#tg-locked-note")?.classList.toggle("hidden", !locked);
+  }
+
   function showError(msg) {
     errorEl.textContent = msg;
     errorEl.classList.remove("hidden");
@@ -23,6 +37,7 @@
   }
 
   L.renderTelegramLinks = function (links) {
+    setFormLocked(links.length >= 1);
     if (!links.length) {
       linksEl.innerHTML = `<p class="empty-state">No chats linked yet. Add your chat id above and the bot will respond as you.</p>`;
       return;
@@ -30,7 +45,7 @@
     linksEl.innerHTML = links.map((l) => `
       <div class="tg-link-row" data-id="${l.id}">
         <div class="tg-link-main">
-          <span class="tg-chat-id">${L.escapeHtml(l.chat_id)}</span>
+          <span class="tg-chat-id">${L.escapeHtml(maskChatId(l.chat_id))}</span>
           <span class="tg-label">${l.label ? L.escapeHtml(l.label) : "<em>no label</em>"}</span>
         </div>
         <div class="row-actions">

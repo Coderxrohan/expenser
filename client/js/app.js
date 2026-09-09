@@ -13,7 +13,7 @@ window.Ledger = {
     debit_card: "Debit card", bank_transfer: "Bank transfer", wallet: "Wallet",
   },
   CURRENCY: "₹",
-  state: { expenses: [], incomes: [] }, // cache of the signed-in user's data
+  state: { expenses: [], incomes: [], categories: [] }, // signed-in user's data
 };
 
 (function () {
@@ -62,12 +62,33 @@ window.Ledger = {
     try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(L.state)); } catch {}
   };
 
+  // Persist only the custom category lists (localStorage — used by every page).
+  L.persistCategories = function () {
+    try { localStorage.setItem("ledger_categories", JSON.stringify(L.state.categories)); } catch {}
+  };
+
+  L.loadStoredCategories = function () {
+    try {
+      const stored = JSON.parse(localStorage.getItem("ledger_categories") || "null");
+      if (Array.isArray(stored) && stored.length) {
+        L.state.categories = stored;
+        L.CATEGORIES = stored.filter((c) => c.type === "expense").map((c) => c.name);
+        L.INCOME_CATEGORIES = stored.filter((c) => c.type === "income").map((c) => c.name);
+      }
+    } catch {}
+  };
+
   L.loadCachedState = function () {
     try {
       const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) || "null");
       if (cached && Array.isArray(cached.expenses) && Array.isArray(cached.incomes)) {
         L.state.expenses = cached.expenses;
         L.state.incomes = cached.incomes;
+        if (Array.isArray(cached.categories)) {
+          L.state.categories = cached.categories;
+          L.CATEGORIES = L.state.categories.filter((c) => c.type === "expense").map((c) => c.name);
+          L.INCOME_CATEGORIES = L.state.categories.filter((c) => c.type === "income").map((c) => c.name);
+        }
         return true;
       }
     } catch {}
@@ -148,6 +169,8 @@ window.Ledger = {
         L.INCOME_CATEGORIES.map((c) => `<option value="${c}">${c}</option>`).join("");
     }
   };
+
+  L.loadStoredCategories();
 
   // ---------- auth ----------
   L.showAuth = () => {
