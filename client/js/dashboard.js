@@ -55,7 +55,7 @@
     const balanceEl = L.$("#stat-balance");
     if (balanceEl) {
       balanceEl.textContent = L.money(balance);
-      balanceEl.style.color = balance < 0 ? "var(--rust)" : "";
+      balanceEl.style.color = balance < 0 ? "#f2a494" : "#9fd6ab";
     }
 
     const dayOfMonth = now.getDate();
