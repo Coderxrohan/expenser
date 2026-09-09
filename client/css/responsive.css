@@ -1,133 +1,35 @@
 /* ============================================================
    Ledger — responsive
+   Same layout as desktop on every screen; small screens get a
+   slim icon rail instead of the full sidebar, and content
+   scales down without changing the arrangement.
    ============================================================ */
-@media (max-width: 860px) {
-  .app-shell { grid-template-columns: 1fr; }
 
-  /* ---- top app bar: brand + logout ---- */
+/* ---------- phones & tablets: slim icon rail, same layout ---------- */
+@media (max-width: 860px) {
+  .app-shell { grid-template-columns: 64px 1fr; }
+
+  /* sidebar collapses to an icon-only rail (same position as desktop) */
   .sidebar {
-    position: sticky;
-    top: 0;
-    height: auto;
-    flex-direction: row;
+    padding: 1rem 0.5rem;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.7rem 1rem;
-    z-index: 30;
-    box-shadow: 0 2px 12px rgba(10, 20, 17, 0.25);
   }
-  .sidebar-brand { margin-bottom: 0; }
-  .sidebar-brand .brand-name { font-size: 1.05rem; }
-  .sidebar-brand .brand-mark { font-size: 1.3rem; }
-  .sidebar-nav { display: none; }               /* replaced by .bottom-nav below */
-  .sidebar-footer { flex-direction: row; border-top: none; padding-top: 0; gap: 0.6rem; }
-  .sidebar-email { display: none; }
-  .sidebar-footer .btn-ghost { padding: 0.4rem 0.85rem; font-size: 0.85rem; }
-
-  /* ---- fixed bottom navigation (thumb-friendly), CSS-only ---- */
-  .main { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
-
-  .main { padding: 1.1rem 0.9rem 1.5rem; }
-  .view-header { margin-bottom: 1.1rem; }
-  .view-header h1 { font-size: 1.4rem; }
-  .eyebrow-plain { font-size: 0.78rem; }
-  .view-header .row-actions { flex-wrap: wrap; }
-
-  .stat-row, .stat-row:has(.stat-card-hero) { grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.1rem; }
-  .stat-card { padding: 0.9rem 0.95rem; }
-  .stat-label { font-size: 0.72rem; margin-bottom: 0.3rem; }
-  .stat-figure { font-size: 1.6rem; }
-  .stat-figure-sm { font-size: 1.25rem; }
-  .stat-sub { font-size: 0.75rem; }
-
-  .dash-grid, .analytics-grid, .settings-grid, .connectors-grid { grid-template-columns: 1fr; gap: 0.85rem; }
-  .panel { padding: 1rem 0.95rem; border-radius: 12px; }
-  .panel-title { font-size: 1rem; margin-bottom: 0.8rem; }
-
-  /* wide data tables scroll horizontally instead of breaking the page */
-  .ledger-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -0.9rem; padding: 0 0.9rem; }
-  .ledger-table { min-width: 560px; }
-
-  /* bottom sheet modals */
-  .modal-overlay { align-items: flex-end; padding: 0.6rem; }
-  .modal { max-width: none; max-height: 88vh; overflow-y: auto; padding: 1.3rem 1.15rem; }
-
-  /* filter bars become full-width rows */
-  .filter-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; }
-  .filter-bar input, .filter-bar select { width: 100%; }
-  .filter-bar input[type="text"] { grid-column: 1 / -1; flex: none; min-width: 0; }
-  .filter-sep { display: none; }
-  .filter-bar .btn { grid-column: 1 / -1; }
-
-  .compare-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; min-width: 480px; }
-  .donut-wrap { width: 128px; height: 128px; margin-bottom: 0.9rem; }
-  .connector-head { flex-wrap: wrap; }
-  .connector-status { margin-left: 0; }
-  .landing { padding: 2.5rem 1.25rem; }
-  .features { margin-top: 2.25rem; }
-  .auth-screen { padding: 1.25rem; }
-  .row-actions { gap: 0.4rem; }
-  .icon-btn { padding: 0.5rem 0.65rem; }
-}
-
-@media (max-width: 520px) {
-  .auth-card { padding: 1.75rem 1.4rem; }
-  .view-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; margin-bottom: 1.25rem; }
-  .budget-form { flex-direction: column; align-items: stretch; }
-  .filter-bar { align-items: stretch; flex-direction: column; }
-  .filter-sep { display: none; }
-
-  .main { padding: 1rem 0.85rem 3rem; }
-  .stat-row, .stat-row:has(.stat-card-hero) { grid-template-columns: 1fr; }
-  .stat-card { padding: 1.1rem 1.15rem; }
-
-  .modal-overlay { padding: 0.75rem; align-items: flex-end; }
-  .modal { max-width: none; padding: 1.4rem 1.2rem; max-height: 88vh; overflow-y: auto; }
-
-  .cat-add-form, .tg-form { flex-direction: column; align-items: stretch; }
-  .tg-link-row, .cat-row { flex-wrap: wrap; gap: 0.5rem; }
-  .recent-row { flex-direction: column; align-items: flex-start; gap: 0.25rem; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; animation: none !important; }
-}
-
-/* ============ Mobile bottom navigation ============ */
-@media (max-width: 860px) {
-  .sidebar-nav {
-    display: flex;
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: stretch;
-    gap: 0;
-    background: var(--spine);
-    border-top: 1px solid rgba(251, 250, 245, 0.12);
-    padding: 0.25rem 0.25rem env(safe-area-inset-bottom, 0px);
-    margin: 0;
-    overflow: visible;
-    z-index: 40;
-    box-shadow: 0 -4px 16px rgba(10, 20, 17, 0.28);
-  }
+  .sidebar-brand { margin-bottom: 2rem; }
+  .sidebar-brand .brand-name { display: none; }
+  .sidebar-brand .brand-mark { font-size: 1.5rem; }
+  .sidebar-nav { width: 100%; gap: 0.3rem; }
   .nav-tab {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    padding: 0.45rem 0.1rem;
-    font-size: 0.6rem;
-    font-weight: 500;
+    width: 100%;
+    padding: 0.6rem 0;
     text-align: center;
+    font-size: 0;
     border-radius: 8px;
-    min-width: 0;
+    position: relative;
   }
+  /* icon glyphs replace the text labels */
   .nav-tab::before {
     display: block;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     line-height: 1;
   }
   .nav-tab[href="dashboard.html"]::before { content: "⌂"; }
@@ -136,9 +38,66 @@
   .nav-tab[href="analytics.html"]::before { content: "◔"; }
   .nav-tab[href="connectors.html"]::before{ content: "⚡"; }
   .nav-tab[href="settings.html"]::before  { content: "⚙"; }
-  .nav-tab.active {
-    background: rgba(251, 250, 245, 0.12);
-    color: var(--paper);
-  }
   .nav-tab.active::before { color: var(--brass); }
+  .sidebar-footer { align-items: center; padding-top: 1rem; gap: 0.5rem; }
+  .sidebar-email { display: none; }
+  .sidebar-footer .btn-ghost {
+    padding: 0.5rem 0;
+    font-size: 0;
+    width: 100%;
+    border-left: none;
+  }
+  .sidebar-footer .btn-ghost::before { content: "⏻"; font-size: 1.1rem; }
+
+  /* content keeps the desktop arrangement, scaled down */
+  .main { padding: 1.25rem 1rem 2.5rem; min-width: 0; }
+  .view-header { flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
+  .view-header h1 { font-size: 1.35rem; }
+  .view-header .row-actions .btn { padding: 0.5rem 0.75rem; min-width: 0; }
+
+  .stat-row { grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.1rem; }
+  .stat-row:has(.stat-card-hero) { grid-template-columns: 1fr 1fr; }
+  .stat-card { padding: 0.9rem 0.9rem; }
+  .stat-figure { font-size: 1.5rem; }
+  .stat-figure-sm { font-size: 1.2rem; }
+  .stat-label { font-size: 0.7rem; }
+
+  .dash-grid { grid-template-columns: 1fr; gap: 0.85rem; }
+  .analytics-grid { grid-template-columns: 1fr; gap: 0.85rem; }
+  .settings-grid { grid-template-columns: 1fr; gap: 0.85rem; }
+  .connectors-grid { grid-template-columns: 1fr; }
+  .panel { padding: 1rem 0.9rem; }
+  .panel-title { font-size: 0.98rem; }
+
+  /* wide tables scroll inside their box; page layout unchanged */
+  .ledger-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .ledger-table { min-width: 540px; }
+  .compare-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; min-width: 460px; }
+
+  .filter-bar { gap: 0.45rem; }
+  .filter-bar input, .filter-bar select { min-width: 0; }
+  .donut-wrap { width: 120px; height: 120px; }
+
+  .modal-overlay { padding: 0.75rem; }
+  .modal { padding: 1.3rem 1.1rem; max-height: 92vh; overflow-y: auto; }
+
+  .connector-head { flex-wrap: wrap; }
+  .connector-status { margin-left: 0; }
+  .cat-add-form, .tg-form { flex-wrap: wrap; }
+  .cat-add-form input, .tg-form input { min-width: 0; }
+}
+
+/* ---------- very small phones ---------- */
+@media (max-width: 520px) {
+  .auth-card { padding: 1.75rem 1.4rem; }
+  .main { padding: 1rem 0.75rem 2rem; }
+  .view-header { flex-direction: column; align-items: flex-start; gap: 0.6rem; }
+  .budget-form { flex-direction: column; align-items: stretch; }
+  .filter-bar { flex-direction: column; align-items: stretch; }
+  .filter-sep { display: none; }
+  .modal-overlay { padding: 0.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
 }
