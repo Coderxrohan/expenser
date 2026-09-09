@@ -14,9 +14,8 @@
   const errorEl = L.$("#tg-error");
 
   // Privacy: never show the full chat id once linked.
-  function maskChatId(id) {
-    const s = String(id);
-    return s.length > 4 ? s.slice(0, 2) + "•••••" + s.slice(-2) : "•••••";
+  function maskChatId() {
+    return "••••••";
   }
 
   // One chat per account: the add form locks while a link exists.
@@ -46,7 +45,7 @@
       <div class="tg-link-row" data-id="${l.id}">
         <div class="tg-link-main">
           <span class="tg-chat-id">${L.escapeHtml(maskChatId(l.chat_id))}</span>
-          <span class="tg-label">${l.label ? L.escapeHtml(l.label) : "<em>no label</em>"}</span>
+          <span class="tg-label">${l.label ? L.escapeHtml(l.label) : "••••"}</span>
         </div>
         <div class="row-actions">
           <button class="icon-btn" data-action="rename">Rename</button>

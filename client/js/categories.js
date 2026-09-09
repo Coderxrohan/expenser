@@ -101,5 +101,28 @@
     }
   });
 
+  document.querySelectorAll(".cat-reset").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const type = btn.dataset.type;
+      const ok = await L.askConfirm(
+        "This removes all your custom categories of this type and restores the built-in defaults.",
+        { title: "Reset to defaults?", confirmLabel: "Reset" }
+      );
+      if (!ok) return;
+      try {
+        const { categories } = await L.api.categories.reset(type);
+        L.state.categories = [
+          ...L.state.categories.filter((c) => c.type !== type),
+          ...(categories || []),
+        ];
+        render();
+        syncAppLists();
+        L.toast("Categories restored to defaults.", "success");
+      } catch (e) {
+        L.toast(e.message, "error");
+      }
+    });
+  });
+
   load();
 })();

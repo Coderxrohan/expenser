@@ -70,6 +70,7 @@
       create: (payload) => request("/api/categories", { method: "POST", body: payload }),
       update: (id, payload) => request(`/api/categories/${id}`, { method: "PATCH", body: payload }),
       remove: (id) => request(`/api/categories/${id}`, { method: "DELETE" }),
+      reset: (type) => request("/api/categories/reset", { method: "POST", body: { type } }),
     },
 
     telegramLinks: {

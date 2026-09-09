@@ -95,6 +95,28 @@ async function updateCategory(token, userId, id, { name }) {
   return data;
 }
 
+// Wipe the user's categories of one type and restore the built-ins.
+async function resetCategories(token, userId, type) {
+  if (!["expense", "income"].includes(type)) {
+    const { ApiError } = require("../middleware/error");
+    throw new ApiError(400, 'type must be "expense" or "income".');
+  }
+  const defaults = type === "expense" ? DEFAULT_EXPENSE : DEFAULT_INCOME;
+  const db = clientFor(token);
+  const del = await db.from("categories").delete().eq("user_id", userId).eq("type", type);
+  if (del.error) throw new Error(del.error.message);
+  const rows = defaults.map((name) => ({ user_id: userId, type, name }));
+  const ins = await db.from("categories").insert(rows);
+  if (ins.error) throw new Error(ins.error.message);
+  const { data, error } = await db
+    .from("categories")
+    .select("*")
+    .eq("type", type)
+    .order("created_at");
+  if (error) throw new Error(error.message);
+  return data || [];
+}
+
 async function deleteCategory(token, userId, id) {
   const { error } = await clientFor(token)
     .from("categories")
@@ -109,6 +131,7 @@ module.exports = {
   createCategory,
   updateCategory,
   deleteCategory,
+  resetCategories,
   DEFAULT_EXPENSE,
   DEFAULT_INCOME,
 };

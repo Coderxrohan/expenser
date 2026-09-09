@@ -28,14 +28,16 @@ async function fetchExpenses(token, { from, to } = {}) {
 
 async function fetchIncomes(token, { from, to } = {}) {
   let query = clientFor(token)
-    .from("incomes")
+    .from("transactions")
     .select("*")
-    .order("income_date", { ascending: true });
-  if (from) query = query.gte("income_date", from);
-  if (to) query = query.lte("income_date", to);
+    .eq("type", "income")
+    .order("expense_date", { ascending: true });
+  if (from) query = query.gte("expense_date", from);
+  if (to) query = query.lte("expense_date", to);
   const { data, error } = await query;
   if (error) throw new Error(error.message);
-  return data || [];
+  // Income rows live in transactions; expose them as income_date.
+  return (data || []).map((r) => ({ ...r, income_date: r.expense_date }));
 }
 
 function buildPack(rows, from, to) {
@@ -112,4 +114,4 @@ async function importBackup(token, userId, backup) {
   return { imported: rows.length };
 }
 
-module.exports = { fetchExpenses, reportPack, exportBackup, importBackup };
+module.exports = { fetchExpenses, fetchIncomes, reportPack, incomePack, exportBackup, importBackup };

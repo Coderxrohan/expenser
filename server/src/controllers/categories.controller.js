@@ -24,6 +24,11 @@ exports.update = async (req, res) => {
   res.json({ category: row });
 };
 
+exports.reset = async (req, res) => {
+  const rows = await categoryService.resetCategories(req.token, req.user.id, req.body.type);
+  res.json({ categories: rows });
+};
+
 exports.remove = async (req, res) => {
   await categoryService.deleteCategory(req.token, req.user.id, req.params.id);
   res.json({ deleted: req.params.id });
