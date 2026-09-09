@@ -202,7 +202,7 @@
   background: var(--paper);
   color: var(--ink);
 }
-#filter-search { flex: 1; min-width: 160px; }
+.filter-bar input[type="text"] { flex: 1; min-width: 160px; }
 .filter-sep { color: var(--muted); font-size: 0.85rem; }
 
 /* ---------- ledger table ---------- */
