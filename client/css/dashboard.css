@@ -453,3 +453,14 @@
   .donut-center-figure { font-size: 0.95rem; }
   .donut-center-label { font-size: 0.65rem; }
 }
+
+/* category reorder controls */
+.cat-order-btns { display: flex; flex-direction: column; gap: 2px; margin-right: 10px; }
+.cat-move {
+  padding: 0 0.4rem;
+  line-height: 1.1;
+  font-size: 0.8rem;
+  min-width: 26px;
+}
+.cat-move:disabled { opacity: 0.3; cursor: default; }
+.cat-row .cat-name { flex: 1; }

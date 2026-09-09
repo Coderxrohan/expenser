@@ -29,6 +29,13 @@ exports.reset = async (req, res) => {
   res.json({ categories: rows });
 };
 
+exports.reorder = async (req, res) => {
+  const rows = await categoryService.reorderCategories(
+    req.token, req.user.id, req.body.type, req.body.ids
+  );
+  res.json({ categories: rows });
+};
+
 exports.remove = async (req, res) => {
   await categoryService.deleteCategory(req.token, req.user.id, req.params.id);
   res.json({ deleted: req.params.id });

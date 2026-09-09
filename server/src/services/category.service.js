@@ -50,6 +50,7 @@ async function listCategories(token, userId) {
     .from("categories")
     .select("*")
     .order("type")
+    .order("sort_order")
     .order("created_at");
   if (error) throw new Error(error.message);
   return data || [];
@@ -61,9 +62,17 @@ async function createCategory(token, userId, { type, name }) {
     throw new ApiError(400, 'type must be "expense" or "income".');
   }
   const clean = cleanName(name);
+  const maxRow = await clientFor(token)
+    .from("categories")
+    .select("sort_order")
+    .eq("user_id", userId)
+    .eq("type", type)
+    .order("sort_order", { ascending: false })
+    .limit(1);
+  const nextOrder = (maxRow.data?.[0]?.sort_order ?? -1) + 1;
   const { data, error } = await clientFor(token)
     .from("categories")
-    .insert({ user_id: userId, type, name: clean })
+    .insert({ user_id: userId, type, name: clean, sort_order: nextOrder })
     .select()
     .single();
   if (error) {
@@ -105,7 +114,7 @@ async function resetCategories(token, userId, type) {
   const db = clientFor(token);
   const del = await db.from("categories").delete().eq("user_id", userId).eq("type", type);
   if (del.error) throw new Error(del.error.message);
-  const rows = defaults.map((name) => ({ user_id: userId, type, name }));
+  const rows = defaults.map((name, i) => ({ user_id: userId, type, name, sort_order: i }));
   const ins = await db.from("categories").insert(rows);
   if (ins.error) throw new Error(ins.error.message);
   const { data, error } = await db
@@ -126,12 +135,39 @@ async function deleteCategory(token, userId, id) {
   if (error) throw new Error(error.message);
 }
 
+// Persist a new order: ids in array order become sort_order 0..n.
+async function reorderCategories(token, userId, type, ids) {
+  if (!["expense", "income"].includes(type) || !Array.isArray(ids)) {
+    const { ApiError } = require("../middleware/error");
+    throw new ApiError(400, 'Send { type, ids: [categoryId, ...] } in the new order.');
+  }
+  const db = clientFor(token);
+  for (let i = 0; i < ids.length; i++) {
+    const { error } = await db
+      .from("categories")
+      .update({ sort_order: i })
+      .eq("id", ids[i])
+      .eq("user_id", userId)
+      .eq("type", type);
+    if (error) throw new Error(error.message);
+  }
+  const { data, error } = await db
+    .from("categories")
+    .select("*")
+    .eq("type", type)
+    .order("sort_order")
+    .order("created_at");
+  if (error) throw new Error(error.message);
+  return data || [];
+}
+
 module.exports = {
   listCategories,
   createCategory,
   updateCategory,
   deleteCategory,
   resetCategories,
+  reorderCategories,
   DEFAULT_EXPENSE,
   DEFAULT_INCOME,
 };

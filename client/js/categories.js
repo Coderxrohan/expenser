@@ -28,8 +28,12 @@
   function render() {
     for (const type of ["expense", "income"]) {
       const rows = L.state.categories.filter((c) => c.type === type);
-      lists[type].el.innerHTML = rows.length ? rows.map((c) => `
+      lists[type].el.innerHTML = rows.length ? rows.map((c, i) => `
         <div class="cat-row" data-id="${c.id}">
+          <span class="cat-order-btns">
+            <button class="icon-btn cat-move" data-action="up" title="Move up" ${i === 0 ? "disabled" : ""}>↑</button>
+            <button class="icon-btn cat-move" data-action="down" title="Move down" ${i === rows.length - 1 ? "disabled" : ""}>↓</button>
+          </span>
           <span class="cat-name">${L.escapeHtml(c.name)}</span>
           <span class="row-actions">
             <button class="icon-btn" data-action="rename">Rename</button>
@@ -77,7 +81,26 @@
     const cat = L.state.categories.find((c) => c.id === id);
     if (!cat) return;
 
-    if (btn.dataset.action === "rename") {
+    if (btn.dataset.action === "up" || btn.dataset.action === "down") {
+      const type = cat.type;
+      const rows = L.state.categories.filter((c) => c.type === type);
+      const idx = rows.findIndex((c) => c.id === id);
+      const swapWith = btn.dataset.action === "up" ? idx - 1 : idx + 1;
+      if (swapWith < 0 || swapWith >= rows.length) return;
+      const next = [...rows];
+      [next[idx], next[swapWith]] = [next[swapWith], next[idx]];
+      try {
+        const { categories } = await L.api.categories.reorder(type, next.map((c) => c.id));
+        L.state.categories = [
+          ...L.state.categories.filter((c) => c.type !== type),
+          ...(categories || []),
+        ];
+        render();
+        syncAppLists();
+      } catch (e) {
+        L.toast(e.message, "error");
+      }
+    } else if (btn.dataset.action === "rename") {
       const name = prompt("New name:", cat.name);
       if (name === null || !name.trim()) return;
       try {

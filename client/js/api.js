@@ -71,6 +71,7 @@
       update: (id, payload) => request(`/api/categories/${id}`, { method: "PATCH", body: payload }),
       remove: (id) => request(`/api/categories/${id}`, { method: "DELETE" }),
       reset: (type) => request("/api/categories/reset", { method: "POST", body: { type } }),
+      reorder: (type, ids) => request("/api/categories/reorder", { method: "POST", body: { type, ids } }),
     },
 
     telegramLinks: {

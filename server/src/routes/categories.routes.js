@@ -11,6 +11,7 @@ router.use(auth);
 router.get("/", asyncHandler(ctrl.list));
 router.post("/", asyncHandler(ctrl.create));
 router.post("/reset", asyncHandler(ctrl.reset));
+router.post("/reorder", asyncHandler(ctrl.reorder));
 router.patch("/:id", asyncHandler(ctrl.update));
 router.delete("/:id", asyncHandler(ctrl.remove));
 
