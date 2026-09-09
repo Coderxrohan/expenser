@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "outputDirectory": "client",
+  "rewrites": [
+    { "source": "/config.js", "destination": "/api" },
+    { "source": "/api/(.*)", "destination": "/api" }
+  ]
+}
