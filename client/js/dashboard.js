@@ -106,15 +106,6 @@
       thisMonthIncome.reduce((s, e) => s + Number(e.amount), 0)
     );
 
-    const diffEl = L.$("#stat-month-diff");
-    if (lastTotal === 0) {
-      diffEl.textContent = "No data for last month";
-    } else {
-      const pct = ((monthTotal - lastTotal) / lastTotal) * 100;
-      const dir = pct >= 0 ? "more" : "less";
-      diffEl.textContent = `${Math.abs(pct).toFixed(0)}% ${dir} than last month`;
-    }
-
     // category breakdown
     const byCategory = {};
     thisMonth.forEach((e) => { byCategory[e.category] = (byCategory[e.category] || 0) + Number(e.amount); });
