@@ -87,6 +87,23 @@
 }
 .view-header h1 { font-size: 1.9rem; }
 
+/* ---------- header action buttons: identical position & size on every tab ---------- */
+.view-header .row-actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+.view-header .row-actions .btn {
+  min-width: 118px;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 0.6rem 1.1rem;
+  line-height: 1.2;
+}
+.view-header .row-actions .btn:last-child {
+  min-width: 152px;
+}
+
 /* ---------- stat row ---------- */
 .stat-row {
   display: grid;
