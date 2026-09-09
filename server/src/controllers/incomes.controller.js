@@ -3,7 +3,7 @@
 // ============================================================
 const incomeService = require("../services/income.service");
 const {
-  parseAmount, parseDate, cleanString, parsePaymentMethod,
+  parseAmount, parseDate, cleanString, parsePaymentMethod, localISO,
 } = require("../utils/validation");
 
 // Categories are user-managed (Settings on the Connectors page).
@@ -18,7 +18,7 @@ function buildPayload(body, { partial = false } = {}) {
   if (!partial || body.amount !== undefined) payload.amount = parseAmount(body.amount);
   if (!partial || body.category !== undefined) payload.category = parseIncomeCategory(body.category);
   if (!partial || body.income_date !== undefined) {
-    payload.income_date = parseDate(body.income_date) || new Date().toISOString().slice(0, 10);
+    payload.income_date = parseDate(body.income_date) || localISO();
   }
   if (!partial || body.note !== undefined) payload.note = cleanString(body.note, { field: "note" });
   if (body.payment_method !== undefined) payload.payment_method = parsePaymentMethod(body.payment_method);

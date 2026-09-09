@@ -3,7 +3,7 @@
 // ============================================================
 const expenseService = require("../services/expense.service");
 const {
-  parseAmount, parseDate, parseCategory, parsePaymentMethod, cleanString,
+  parseAmount, parseDate, parseCategory, parsePaymentMethod, cleanString, localISO,
 } = require("../utils/validation");
 
 function buildPayload(body, { partial = false } = {}) {
@@ -11,7 +11,7 @@ function buildPayload(body, { partial = false } = {}) {
   if (!partial || body.amount !== undefined) payload.amount = parseAmount(body.amount);
   if (!partial || body.category !== undefined) payload.category = parseCategory(body.category);
   if (!partial || body.expense_date !== undefined) {
-    payload.expense_date = parseDate(body.expense_date) || new Date().toISOString().slice(0, 10);
+    payload.expense_date = parseDate(body.expense_date) || localISO();
   }
   if (!partial || body.note !== undefined) payload.note = cleanString(body.note, { field: "note" });
   if (body.payment_method !== undefined) payload.payment_method = parsePaymentMethod(body.payment_method);

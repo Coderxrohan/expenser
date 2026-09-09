@@ -67,3 +67,12 @@ module.exports = {
   parseCategory,
   parsePaymentMethod,
 };
+
+// LOCAL date string (toISOString is UTC — wrong day for IST after midnight).
+function localISO(d = new Date()) {
+  return d.getFullYear() + "-" +
+    String(d.getMonth() + 1).padStart(2, "0") + "-" +
+    String(d.getDate()).padStart(2, "0");
+}
+
+Object.assign(module.exports, { localISO });

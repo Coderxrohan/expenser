@@ -34,12 +34,19 @@ window.Ledger = {
   L.money = (n) =>
     L.CURRENCY + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  L.todayISO = () => new Date().toISOString().slice(0, 10);
+  // LOCAL date string — toISOString() is UTC and reports yesterday
+  // between midnight and 5:30 AM in IST.
+  L.localISO = (d = new Date()) =>
+    d.getFullYear() + "-" +
+    String(d.getMonth() + 1).padStart(2, "0") + "-" +
+    String(d.getDate()).padStart(2, "0");
+
+  L.todayISO = () => L.localISO();
 
   L.monthBounds = (date = new Date()) => {
     const start = new Date(date.getFullYear(), date.getMonth(), 1);
     const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-    return { start: start.toISOString().slice(0, 10), end: end.toISOString().slice(0, 10) };
+    return { start: L.localISO(start), end: L.localISO(end) };
   };
 
   L.formatDate = (iso) => {

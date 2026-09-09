@@ -1,7 +1,7 @@
 // /add 500 food [note…] — create an expense.
 const { client, userIdForChat } = require("../services/expense.service");
 const notification = require("../services/notification.service");
-const { CATEGORIES, parseAmount, parseDate } = require("../../server/src/utils/validation");
+const { CATEGORIES, parseAmount, parseDate, localISO } = require("../../server/src/utils/validation");
 
 function findCategory(word) {
   const w = word.toLowerCase();
@@ -33,7 +33,7 @@ module.exports = async function add(message, { sendMessage }) {
 
   const { data, error } = await client()
     .from("transactions")
-    .insert({ user_id, amount, category, note, type: "expense", expense_date: parseDate(new Date().toISOString().slice(0, 10)) })
+    .insert({ user_id, amount, category, note, type: "expense", expense_date: parseDate(localISO()) })
     .select()
     .single();
   if (error) throw new Error(error.message);

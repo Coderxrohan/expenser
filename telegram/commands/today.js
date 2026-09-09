@@ -1,10 +1,11 @@
 // /today — today's spending.
 const { client, userIdForChat } = require("../services/expense.service");
 
+const { localISO } = require("../server/src/utils/validation");
 module.exports = async function today(message, { sendMessage }) {
   const supabase = client();
   const user_id = await userIdForChat(chatId);
-  const day = new Date().toISOString().slice(0, 10);
+  const day = localISO();
 
   const { data, error } = await supabase
     .from("transactions")
