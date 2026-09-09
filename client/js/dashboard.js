@@ -47,7 +47,16 @@
     const lastTotal = lastMonth.reduce((s, e) => s + Number(e.amount), 0);
 
     L.$("#stat-month-total").textContent = L.money(monthTotal);
-    L.$("#stat-count").textContent = thisMonth.length;
+
+    // left balance = everything earned minus everything spent
+    const totalIn = L.state.incomes.reduce((s2, e) => s2 + Number(e.amount), 0);
+    const totalOut = all.reduce((s2, e) => s2 + Number(e.amount), 0);
+    const balance = totalIn - totalOut;
+    const balanceEl = L.$("#stat-balance");
+    if (balanceEl) {
+      balanceEl.textContent = L.money(balance);
+      balanceEl.style.color = balance < 0 ? "var(--rust)" : "";
+    }
 
     const dayOfMonth = now.getDate();
     L.$("#stat-daily-avg").textContent = L.money(dayOfMonth ? monthTotal / dayOfMonth : 0);
