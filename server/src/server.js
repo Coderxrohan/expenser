@@ -102,7 +102,12 @@ async function checkDatabase() {
   }
 }
 
-app.listen(env.port, () => {
-  console.log(`\n  Ledger → http://localhost:${env.port}\n`);
-  checkDatabase();
-});
+// Run directly → listen locally. Imported (Vercel serverless) → export app.
+if (require.main === module) {
+  app.listen(env.port, () => {
+    console.log(`\n  Ledger → http://localhost:${env.port}\n`);
+    checkDatabase();
+  });
+}
+
+module.exports = app;
