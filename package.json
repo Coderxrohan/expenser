@@ -8,6 +8,7 @@
     "start": "node server/src/server.js",
     "dev": "node --watch server/src/server.js",
     "bot": "node telegram/bot.js",
+    "db:setup": "npm run db:setup --prefix server",
     "test": "node --test"
   },
   "optionalDependencies": {

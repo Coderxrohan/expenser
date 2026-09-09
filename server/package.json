@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
+    "db:setup": "node src/tools/apply-schema.js",
     "test": "node --test ../../tests/"
   },
   "dependencies": {
@@ -17,6 +18,7 @@
     "express-rate-limit": "^7.4.0",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "pdfkit": "^0.15.0"
+    "pdfkit": "^0.15.0",
+    "pg": "^8.12.0"
   }
 }

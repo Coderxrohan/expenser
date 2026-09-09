@@ -67,6 +67,40 @@ app.get("/", (req, res) => res.sendFile(path.join(clientDir, "index.html")));
 app.use(notFound);
 app.use(errorHandler);
 
+const { supabase } = require("./config/supabase");
+
+// Startup check: verify the Supabase project actually has the tables and
+// report a clear, actionable error instead of 500s later.
+async function checkDatabase() {
+  if (!supabase) {
+    console.warn("  ⚠  Supabase is not configured — set SUPABASE_URL and SUPABASE_ANON_KEY in .env");
+    return;
+  }
+  const { error } = await supabase.from("expenses").select("id").limit(1);
+  if (error && /schema cache|does not exist|Could not find the table/i.test(error.message)) {
+    console.warn(`
+  ✖  Your Supabase project has no tables yet (all data requests will fail).
+
+     Fix it with one command — add your database connection string to .env
+     (Supabase → Project Settings → Database → Connection string → URI):
+
+       DATABASE_URL=postgresql://postgres:<db-password>@db.<ref>.supabase.co:5432/postgres
+
+     then run:
+
+       npm run db:setup
+
+     (or paste database/schema.sql + the files in database/migrations/
+      into the Supabase SQL Editor, in order)
+`);
+  } else if (error) {
+    console.warn(`  ⚠  Supabase check failed: ${error.message}`);
+  } else {
+    console.log("  ✓ Supabase tables OK");
+  }
+}
+
 app.listen(env.port, () => {
   console.log(`\n  Ledger → http://localhost:${env.port}\n`);
+  checkDatabase();
 });
