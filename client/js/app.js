@@ -172,6 +172,21 @@ window.Ledger = {
 
   L.loadStoredCategories();
 
+  // ---------- mobile hamburger menu ----------
+  const menuBtn = L.$("#menu-btn");
+  if (menuBtn) {
+    menuBtn.addEventListener("click", () => {
+      document.body.classList.toggle("nav-open");
+    });
+    L.$("#nav-backdrop").addEventListener("click", () => {
+      document.body.classList.remove("nav-open");
+    });
+    // close the drawer after navigating
+    L.$$(".sidebar-nav .nav-tab").forEach((t) =>
+      t.addEventListener("click", () => document.body.classList.remove("nav-open"))
+    );
+  }
+
   // ---------- auth ----------
   L.showAuth = () => {
     L.$("#auth-screen")?.classList.remove("hidden");

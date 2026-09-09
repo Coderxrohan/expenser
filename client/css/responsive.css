@@ -5,51 +5,72 @@
    scales down without changing the arrangement.
    ============================================================ */
 
-/* ---------- phones & tablets: slim icon rail, same layout ---------- */
+/* ---------- phones & tablets: hamburger + slide-in drawer ---------- */
 @media (max-width: 860px) {
-  .app-shell { grid-template-columns: 64px 1fr; }
+  .app-shell { grid-template-columns: 1fr; }
 
-  /* sidebar collapses to an icon-only rail (same position as desktop) */
-  .sidebar {
-    padding: 1rem 0.5rem;
+  /* slim top bar with the hamburger */
+  .mobile-topbar {
+    display: flex;
     align-items: center;
+    gap: 0.7rem;
+    background: var(--spine);
+    color: var(--paper);
+    padding: 0.6rem 0.9rem;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    box-shadow: 0 2px 12px rgba(10, 20, 17, 0.25);
   }
-  .sidebar-brand { margin-bottom: 2rem; }
-  .sidebar-brand .brand-name { display: none; }
-  .sidebar-brand .brand-mark { font-size: 1.5rem; }
-  .sidebar-nav { width: 100%; gap: 0.3rem; }
-  .nav-tab {
-    width: 100%;
-    padding: 0.6rem 0;
-    text-align: center;
-    font-size: 0;
-    border-radius: 8px;
-    position: relative;
+  .mobile-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.05rem;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
   }
-  /* icon glyphs replace the text labels */
-  .nav-tab::before {
-    display: block;
-    font-size: 1.1rem;
+  .mobile-title .brand-mark { font-size: 1.2rem; color: var(--brass); }
+  .hamburger {
+    background: none;
+    border: none;
+    color: var(--paper);
+    font-size: 1.5rem;
     line-height: 1;
+    padding: 0.2rem 0.4rem;
+    cursor: pointer;
+    border-radius: 8px;
   }
-  .nav-tab[href="dashboard.html"]::before { content: "⌂"; }
-  .nav-tab[href="expenses.html"]::before  { content: "₹"; font-family: 'Fraunces', serif; }
-  .nav-tab[href="income.html"]::before    { content: "↓"; }
-  .nav-tab[href="analytics.html"]::before { content: "◔"; }
-  .nav-tab[href="connectors.html"]::before{ content: "⚡"; }
-  .nav-tab[href="settings.html"]::before  { content: "⚙"; }
-  .nav-tab.active::before { color: var(--brass); }
-  .sidebar-footer { align-items: center; padding-top: 1rem; gap: 0.5rem; }
-  .sidebar-email { display: none; }
-  .sidebar-footer .btn-ghost {
-    padding: 0.5rem 0;
-    font-size: 0;
-    width: 100%;
-    border-left: none;
-  }
-  .sidebar-footer .btn-ghost::before { content: "⏻"; font-size: 1.1rem; }
+  .hamburger:active { background: rgba(251, 250, 245, 0.12); }
 
-  /* content keeps the desktop arrangement, scaled down */
+  /* sidebar becomes an off-canvas drawer (full desktop menu inside) */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 240px;
+    max-width: 82vw;
+    z-index: 60;
+    transform: translateX(-105%);
+    transition: transform 0.22s ease;
+    box-shadow: none;
+  }
+  body.nav-open .sidebar {
+    transform: none;
+    box-shadow: 0 12px 48px rgba(10, 20, 17, 0.5);
+  }
+
+  /* dimmed backdrop behind the drawer */
+  .nav-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 20, 17, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+    z-index: 50;
+  }
+  body.nav-open .nav-backdrop { opacity: 1; pointer-events: auto; }
+
+  /* content */
   .main { padding: 1.25rem 1rem 2.5rem; min-width: 0; }
   .view-header { flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
   .view-header h1 { font-size: 1.35rem; }
@@ -69,7 +90,6 @@
   .panel { padding: 1rem 0.9rem; }
   .panel-title { font-size: 0.98rem; }
 
-  /* wide tables scroll inside their box; page layout unchanged */
   .ledger-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .ledger-table { min-width: 540px; }
   .compare-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; min-width: 460px; }
@@ -86,6 +106,9 @@
   .cat-add-form, .tg-form { flex-wrap: wrap; }
   .cat-add-form input, .tg-form input { min-width: 0; }
 }
+
+/* desktop: never show the mobile topbar or backdrop */
+.mobile-topbar, .nav-backdrop { display: none; }
 
 /* ---------- very small phones ---------- */
 @media (max-width: 520px) {
