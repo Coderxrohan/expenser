@@ -12,12 +12,13 @@
   }
   .sidebar-brand { margin-bottom: 0; }
   .sidebar-nav { flex-direction: row; flex: 1; justify-content: center; }
-  .nav-tab { border-left: none; border-bottom: 2px solid transparent; }
-  .nav-tab.active { border-left: none; border-bottom-color: var(--brass); }
+  .nav-tab { border-left: none; padding: 0.5rem 0.75rem; }
+  .nav-tab.active { background: rgba(251, 250, 245, 0.12); }
+  .nav-tab.active::before { display: none; }
   .sidebar-footer { flex-direction: row; border-top: none; padding-top: 0; }
   .sidebar-email { display: none; }
   .main { padding: 1.5rem; }
-  .stat-row { grid-template-columns: 1fr; }
+  .stat-row, .stat-row:has(.stat-card-hero) { grid-template-columns: 1fr 1fr; }
   .dash-grid, .analytics-grid { grid-template-columns: 1fr; }
 }
 

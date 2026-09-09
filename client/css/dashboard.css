@@ -37,19 +37,29 @@
   text-align: left;
   background: none;
   border: none;
-  border-left: 2px solid transparent;
   color: rgba(251, 250, 245, 0.65);
-  padding: 0.65rem 0.9rem;
+  padding: 0.62rem 0.95rem;
   font-weight: 500;
   cursor: pointer;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s ease, color 0.15s ease;
 }
-.nav-tab:hover { color: var(--paper); }
+.nav-tab:hover { color: var(--paper); background: rgba(251, 250, 245, 0.06); }
 .nav-tab.active {
   color: var(--paper);
-  border-left-color: var(--brass);
-  background: rgba(251, 250, 245, 0.06);
+  background: rgba(251, 250, 245, 0.1);
   font-weight: 600;
+  position: relative;
+}
+.nav-tab.active::before {
+  content: "";
+  position: absolute;
+  left: -0.95rem;
+  top: 20%;
+  bottom: 20%;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--brass);
 }
 
 .sidebar-footer {
@@ -72,8 +82,9 @@
 .sidebar-footer .btn-ghost:hover { border-color: var(--paper); }
 
 .main {
-  padding: 2.5rem 3rem;
-  max-width: 1100px;
+  padding: 2.5rem 3rem 4rem;
+  width: 100%;
+  min-width: 0;
 }
 
 .view-header {
@@ -109,15 +120,22 @@
 /* ---------- stat row ---------- */
 .stat-row {
   display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 1rem;
   margin-bottom: 2rem;
 }
+.stat-row:has(.stat-card-hero) { grid-template-columns: 1.8fr 1fr 1fr 1fr; }
 .stat-card {
   background: var(--paper-dim);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 1.4rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(32, 36, 31, 0.05);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(32, 36, 31, 0.1);
 }
 .stat-card-hero {
   background: var(--spine);
@@ -154,6 +172,8 @@
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 1.5rem;
+  background: var(--paper);
+  box-shadow: 0 1px 3px rgba(32, 36, 31, 0.05);
 }
 .panel-title {
   font-size: 1.1rem;
