@@ -38,8 +38,9 @@ is generated from `.env` at runtime — real keys never live in source.
      can stay empty for now.
 2. **Database** — run `database/schema.sql` in your Supabase SQL editor, then
    the migrations in `database/migrations/` in numeric order (see
-   [docs/DATABASE.md](docs/DATABASE.md)). If you ran the old single-file
-   version, your data is already there — migrations are all `if not exists`.
+   [docs/DATABASE.md](docs/DATABASE.md)). **Migration `006_income.sql` is
+   required** — the Income tab uses it. All files are `if not exists`, so
+   re-running them is safe.
 3. **Telegram** (optional) — see [docs/TELEGRAM.md](docs/TELEGRAM.md).
 
 ## What works today
@@ -51,8 +52,9 @@ is generated from `.env` at runtime — real keys never live in source.
   donut + breakdown, recent entries
 - **Expenses** — add, edit, delete; payment method; filters (search, category,
   date range); CSV + PDF export; JSON backup/restore; bank statement import
-- **Budgets** — monthly limit per category with live progress bars and a
-  status endpoint powering alerts
+- **Income** — same add/edit/delete + filters as expenses, with its own
+  sources (Salary, Freelance, Business, Investment, Gift, Other) and an
+  "Earned this month" stat on the dashboard
 - **Analytics** — daily spending chart, top merchants, category comparison,
   averages (see `GET /api/expenses/analytics`)
 - **API** — documented in [docs/API.md](docs/API.md); rate-limited; every

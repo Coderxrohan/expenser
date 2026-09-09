@@ -60,6 +60,39 @@ Full analytics pack for the current month:
 - `categoryComparison` — `[{ category, thisMonth, lastMonth }]`
 - `topMerchants` — `[{ merchant, amount }]` (from notes)
 
+## Incomes
+
+Same shape as expenses, minus payment method. Income categories: Salary,
+Freelance, Business, Investment, Gift, Other.
+
+### `GET /incomes`
+Query params: `from`, `to` (YYYY-MM-DD), `category`, `search`, `limit`.
+Returns `{ incomes: [...] }` sorted by date desc.
+
+### `GET /incomes/:id`
+Returns `{ income: {...} }` or 404.
+
+### `POST /incomes`
+Body:
+
+```json
+{
+  "amount": 50000.00,
+  "category": "Salary",
+  "income_date": "2026-09-01",
+  "note": "September payroll",
+  "currency": "INR"
+}
+```
+
+Returns `201 { income }`.
+
+### `PATCH /incomes/:id`
+Partial update — any subset of the POST fields. Returns `{ income }`.
+
+### `DELETE /incomes/:id`
+Returns `{ deleted: "<id>" }`.
+
 ## Budgets
 
 ### `GET /budgets`

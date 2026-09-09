@@ -52,6 +52,12 @@
     const dayOfMonth = now.getDate();
     L.$("#stat-daily-avg").textContent = L.money(dayOfMonth ? monthTotal / dayOfMonth : 0);
 
+    const { start: iStart, end: iEnd } = { start, end };
+    const thisMonthIncome = L.state.incomes.filter((e) => e.income_date >= iStart && e.income_date <= iEnd);
+    L.$("#stat-income").textContent = L.money(
+      thisMonthIncome.reduce((s, e) => s + Number(e.amount), 0)
+    );
+
     const diffEl = L.$("#stat-month-diff");
     if (lastTotal === 0) {
       diffEl.textContent = "No data for last month";

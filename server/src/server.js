@@ -13,6 +13,7 @@ const { apiLimiter } = require("./middleware/rateLimit");
 const { notFound, errorHandler } = require("./middleware/error");
 
 const expensesRoutes = require("./routes/expenses.routes");
+const incomesRoutes = require("./routes/incomes.routes");
 const budgetsRoutes = require("./routes/budgets.routes");
 const reportsRoutes = require("./routes/reports.routes");
 const receiptsRoutes = require("./routes/receipts.routes");
@@ -30,6 +31,7 @@ app.get("/api/health", (req, res) => res.json({ ok: true, ts: new Date().toISOSt
 
 app.use("/api", apiLimiter);
 app.use("/api/expenses", expensesRoutes);
+app.use("/api/incomes", incomesRoutes);
 app.use("/api/budgets", budgetsRoutes);
 app.use("/api/reports", reportsRoutes);
 app.use("/api/receipts", receiptsRoutes);

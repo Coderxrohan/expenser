@@ -7,12 +7,13 @@ window.Ledger = {
     "Food", "Transport", "Shopping", "Bills",
     "Entertainment", "Health", "Education", "Other",
   ],
+  INCOME_CATEGORIES: ["Salary", "Freelance", "Business", "Investment", "Gift", "Other"],
   PAYMENT_METHODS: {
     cash: "Cash", upi: "UPI", credit_card: "Credit card",
     debit_card: "Debit card", bank_transfer: "Bank transfer", wallet: "Wallet",
   },
   CURRENCY: "₹",
-  state: { expenses: [], budgets: [] }, // cache of the signed-in user's data
+  state: { expenses: [], incomes: [] }, // cache of the signed-in user's data
 };
 
 (function () {
@@ -107,15 +108,23 @@ window.Ledger = {
   };
 
   L.populateCategorySelects = () => {
-    const selects = [L.$("#expense-category"), L.$("#budget-category")];
-    selects.forEach((sel) => {
-      if (!sel) return;
-      sel.innerHTML = L.CATEGORIES.map((c) => `<option value="${c}">${c}</option>`).join("");
-    });
+    const expenseSelect = L.$("#expense-category");
+    if (expenseSelect) {
+      expenseSelect.innerHTML = L.CATEGORIES.map((c) => `<option value="${c}">${c}</option>`).join("");
+    }
+    const incomeSelect = L.$("#income-category");
+    if (incomeSelect) {
+      incomeSelect.innerHTML = L.INCOME_CATEGORIES.map((c) => `<option value="${c}">${c}</option>`).join("");
+    }
     const filterSelect = L.$("#filter-category");
     if (filterSelect) {
       filterSelect.innerHTML = `<option value="">All categories</option>` +
         L.CATEGORIES.map((c) => `<option value="${c}">${c}</option>`).join("");
+    }
+    const incomeFilterSelect = L.$("#income-filter-category");
+    if (incomeFilterSelect) {
+      incomeFilterSelect.innerHTML = `<option value="">All sources</option>` +
+        L.INCOME_CATEGORIES.map((c) => `<option value="${c}">${c}</option>`).join("");
     }
   };
 
@@ -184,7 +193,7 @@ window.Ledger = {
       await L.refreshData();
       L.renderDashboard();
       L.renderExpensesTable();
-      L.renderBudgets();
+      L.renderIncomesTable();
     } catch (e) {
       L.toast(e.message, "error");
     } finally {

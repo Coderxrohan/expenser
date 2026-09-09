@@ -42,12 +42,12 @@
 
   // ---------- data loading ----------
   L.refreshData = async function () {
-    const [exp, bud] = await Promise.all([
+    const [exp, inc] = await Promise.all([
       request("/api/expenses"),
-      request("/api/budgets"),
+      request("/api/incomes"),
     ]);
     L.state.expenses = exp.expenses || [];
-    L.state.budgets = bud.budgets || [];
+    L.state.incomes = inc.incomes || [];
   };
 
   // ---------- expenses ----------
@@ -58,8 +58,9 @@
     updateExpense: (id, payload) => request(`/api/expenses/${id}`, { method: "PATCH", body: payload }),
     deleteExpense: (id) => request(`/api/expenses/${id}`, { method: "DELETE" }),
 
-    upsertBudget: (payload) => request("/api/budgets", { method: "POST", body: payload }),
-    deleteBudget: (id) => request(`/api/budgets/${id}`, { method: "DELETE" }),
+    createIncome: (payload) => request("/api/incomes", { method: "POST", body: payload }),
+    updateIncome: (id, payload) => request(`/api/incomes/${id}`, { method: "PATCH", body: payload }),
+    deleteIncome: (id) => request(`/api/incomes/${id}`, { method: "DELETE" }),
 
     analytics: () => request("/api/expenses/analytics"),
   };

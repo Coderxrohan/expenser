@@ -45,7 +45,7 @@
     <nav class="sidebar-nav">
       <button class="nav-tab active" data-view="dashboard">Dashboard</button>
       <button class="nav-tab" data-view="expenses">Expenses</button>
-      <button class="nav-tab" data-view="budgets">Budgets</button>
+      <button class="nav-tab" data-view="income">Income</button>
       <button class="nav-tab" data-view="analytics">Analytics</button>
     </nav>
 
@@ -76,6 +76,10 @@
         <div class="stat-card">
           <p class="stat-label">Daily average</p>
           <p class="stat-figure stat-figure-sm" id="stat-daily-avg">₹0</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Earned this month</p>
+          <p class="stat-figure stat-figure-sm" id="stat-income">₹0</p>
         </div>
         <div class="stat-card">
           <p class="stat-label">Transactions</p>
@@ -144,24 +148,42 @@
       </div>
     </section>
 
-    <!-- ---------- BUDGETS VIEW ---------- -->
-    <section id="view-budgets" class="view hidden">
+    <!-- ---------- INCOME VIEW ---------- -->
+    <section id="view-income" class="view hidden">
       <header class="view-header">
         <div>
-          <p class="eyebrow-plain">Monthly limits</p>
-          <h1>Budgets</h1>
+          <p class="eyebrow-plain">Money in</p>
+          <h1>Income</h1>
         </div>
+        <button class="btn btn-primary" id="add-income-btn">+ Add income</button>
       </header>
 
-      <div class="panel">
-        <form id="budget-form" class="budget-form">
-          <select id="budget-category" required></select>
-          <input type="number" id="budget-amount" min="0" step="0.01" placeholder="Monthly limit" required />
-          <button type="submit" class="btn btn-primary">Set budget</button>
-        </form>
+      <div class="filter-bar">
+        <input type="text" id="income-filter-search" placeholder="Search notes…" />
+        <select id="income-filter-category">
+          <option value="">All sources</option>
+        </select>
+        <input type="date" id="income-filter-from" />
+        <span class="filter-sep">to</span>
+        <input type="date" id="income-filter-to" />
+        <button class="btn btn-ghost" id="income-filter-clear">Clear</button>
       </div>
 
-      <div id="budgets-list" class="budgets-list"></div>
+      <div class="ledger-table-wrap">
+        <table class="ledger-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Source</th>
+              <th>Note</th>
+              <th class="align-right">Amount</th>
+              <th class="align-right">—</th>
+            </tr>
+          </thead>
+          <tbody id="incomes-tbody"></tbody>
+        </table>
+        <p id="incomes-empty" class="empty-state hidden">No income entries yet. Add the first one.</p>
+      </div>
     </section>
 
     <!-- ---------- ANALYTICS VIEW ---------- -->
@@ -246,13 +268,40 @@
   </div>
 </div>
 
+<!-- ============ INCOME MODAL ============ -->
+<div id="income-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <h2 id="income-modal-title">Add income</h2>
+    <form id="income-form">
+      <input type="hidden" id="income-id" />
+      <label>Amount
+        <input type="number" id="income-amount" min="0.01" step="0.01" required />
+      </label>
+      <label>Source
+        <select id="income-category" required></select>
+      </label>
+      <label>Date
+        <input type="date" id="income-date" required />
+      </label>
+      <label>Note (optional)
+        <input type="text" id="income-note" maxlength="200" />
+      </label>
+      <p class="auth-error" id="income-error"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="income-modal-cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="income-modal-save">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 <script src="js/app.js"></script>
 <script src="js/api.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/expenses.js"></script>
-<script src="js/budgets.js"></script>
+<script src="js/income.js"></script>
 <script src="js/analytics.js"></script>
 </body>
 </html>

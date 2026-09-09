@@ -73,7 +73,6 @@
         await L.refreshData();
         L.renderDashboard();
         L.renderExpensesTable();
-        L.renderBudgets();
       } catch (err) {
         L.toast(err.message, "error");
       }
@@ -155,7 +154,6 @@
         await L.refreshData();
         L.renderDashboard();
         L.renderExpensesTable();
-        L.renderBudgets();
       } catch (err) {
         L.$("#expense-error").textContent = err.message;
       }
