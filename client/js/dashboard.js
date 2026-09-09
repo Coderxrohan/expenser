@@ -6,29 +6,62 @@
 
   const DONUT_COLORS = ["#a9843a", "#5f8267", "#9c4a3d", "#2c4c44", "#c9b37a", "#7a9e83", "#b97363", "#767c6c"];
 
+  // Radar chart: one spoke per category, dot at each category's spend.
   function renderDonut(rows, total) {
     const svg = L.$("#donut-chart");
     L.$("#donut-center-figure").textContent = L.money(total);
 
+    const C = 60, R = 40; // center and max radius
+    const max = Math.max(...rows.map(([, amt]) => amt), 1);
+
     if (!rows.length || total === 0) {
-      svg.innerHTML = `<circle cx="60" cy="60" r="48" fill="none" stroke="#ddd8c8" stroke-width="16" />`;
+      svg.innerHTML = `<circle cx="60" cy="60" r="44" fill="none" stroke="#ddd8c8" stroke-width="1.5"/>` +
+        `<circle cx="60" cy="60" r="3" fill="#ddd8c8"/>`;
       return;
     }
 
-    const radius = 48;
-    const circumference = 2 * Math.PI * radius;
-    let offset = 0;
+    const n = rows.length;
+    const angle = (i) => (Math.PI * 2 * i) / n - Math.PI / 2; // first spoke points up
 
-    svg.innerHTML = rows.map(([, amt], i) => {
-      const fraction = amt / total;
-      const length = fraction * circumference;
-      const dasharray = `${length} ${circumference - length}`;
-      const circle = `<circle cx="60" cy="60" r="${radius}" fill="none"
-          stroke="${DONUT_COLORS[i % DONUT_COLORS.length]}" stroke-width="16"
-          stroke-dasharray="${dasharray}" stroke-dashoffset="${-offset}" />`;
-      offset += length;
-      return circle;
+    // web: concentric rings + spokes
+    let web = "";
+    [0.25, 0.5, 0.75, 1].forEach((f) => {
+      const ring = rows.map((_, i) => {
+        const a = angle(i);
+        return `${(C + Math.cos(a) * R * f).toFixed(2)},${(C + Math.sin(a) * R * f).toFixed(2)}`;
+      }).join(" ");
+      web += `<polygon points="${ring}" fill="none" stroke="#d9d3c2" stroke-width="0.7"/>`;
+    });
+    rows.forEach((_, i) => {
+      const a = angle(i);
+      web += `<line x1="${C}" y1="${C}" x2="${(C + Math.cos(a) * R).toFixed(2)}" y2="${(C + Math.sin(a) * R).toFixed(2)}" stroke="#d9d3c2" stroke-width="0.7"/>`;
+    });
+
+    // data polygon + dots
+    const dataPts = rows.map(([, amt], i) => {
+      const a = angle(i);
+      const r = R * (amt / max);
+      return { x: C + Math.cos(a) * r, y: C + Math.sin(a) * r, ax: C + Math.cos(a) * R, ay: C + Math.sin(a) * R, a };
+    });
+    const poly = dataPts.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ");
+    const dots = dataPts.map((p) =>
+      `<circle cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" r="2.6" fill="var(--rust)" stroke="var(--paper)" stroke-width="1"/>`
+    ).join("");
+
+    // labels outside the web
+    const labels = rows.map(([cat], i) => {
+      const a = angle(i);
+      const lx = C + Math.cos(a) * (R + 9);
+      const ly = C + Math.sin(a) * (R + 9);
+      const anchor = Math.abs(Math.cos(a)) < 0.3 ? "middle" : Math.cos(a) > 0 ? "start" : "end";
+      const short = cat.length > 9 ? cat.slice(0, 8) + "…" : cat;
+      return `<text x="${lx.toFixed(2)}" y="${(ly + 2).toFixed(2)}" text-anchor="${anchor}" font-size="5.5"
+        font-family="Inter, sans-serif" fill="var(--muted)">${L.escapeHtml(short)}</text>`;
     }).join("");
+
+    svg.innerHTML = web +
+      `<polygon points="${poly}" fill="rgba(169, 132, 58, 0.28)" stroke="var(--brass)" stroke-width="1.4" stroke-linejoin="round"/>` +
+      dots + labels;
   }
 
   L.renderDashboard = function () {
