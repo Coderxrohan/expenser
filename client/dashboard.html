@@ -70,6 +70,10 @@
     </header>
 
     <div class="stat-row">
+      <div class="stat-card stat-card-balance">
+        <p class="stat-label">Left balance</p>
+        <p class="stat-figure stat-figure-sm" id="stat-balance">₹0.00</p>
+      </div>
       <div class="stat-card stat-card-hero stat-card-spent">
         <p class="stat-label">Spent this month</p>
         <p class="stat-figure" id="stat-month-total">₹0</p>
@@ -80,13 +84,14 @@
         <p class="stat-figure stat-figure-sm" id="stat-income">₹0</p>
       </div>
       <div class="stat-card">
-        <p class="stat-label">Daily average</p>
-        <p class="stat-figure stat-figure-sm" id="stat-daily-avg">₹0</p>
+        <p class="stat-label">Spent today</p>
+        <p class="stat-figure stat-figure-sm" id="stat-today">₹0.00</p>
       </div>
-      <div class="stat-card stat-card-balance">
-        <p class="stat-label">Left balance</p>
-        <p class="stat-figure stat-figure-sm" id="stat-balance">₹0.00</p>
-      </div>
+    </div>
+
+    <div class="panel wave-panel">
+      <h2 class="panel-title">Last 7 days</h2>
+      <div id="wave-chart" class="wave-chart"></div>
     </div>
 
     <div class="dash-grid">

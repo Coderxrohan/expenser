@@ -467,15 +467,33 @@
 
 /* spent (hero) and balance cards carry their own identity colors */
 .stat-card-spent {
-  background: linear-gradient(150deg, #8a4238, var(--rust) 55%, #7c352c);
-  border: none;
-  color: var(--paper);
+  background: linear-gradient(150deg, #f8ddd5, #f2c9bd 60%, #eebfb2);
+  border-color: #e3aca0;
+  color: var(--ink);
 }
-.stat-card-spent .stat-label { color: rgba(251, 250, 245, 0.75); }
-.stat-card-spent .stat-sub { color: rgba(251, 250, 245, 0.75); }
+.stat-card-spent .stat-figure { color: #7c352c; }
+.stat-card-spent .stat-label { color: #8f4638; }
+.stat-card-spent .stat-sub { color: #a05a4b; }
 
 .stat-card-balance {
   background: linear-gradient(150deg, #eaf2e3, #dbe9d3 60%, #d2e4c8);
   border-color: #c3d8b8;
 }
 .stat-card-balance .stat-label { color: #4c6b52; }
+
+/* ---- last-7-days wave panel (edge to edge) ---- */
+.wave-panel {
+  margin: 0 -3rem 1.5rem;
+  padding: 1.25rem 3rem 0.75rem;
+  border-left: none;
+  border-right: none;
+  border-radius: 0;
+}
+.wave-chart { width: 100%; overflow: hidden; }
+.wave-chart svg { display: block; max-width: 100%; }
+@media (max-width: 860px) {
+  .wave-panel { margin: 0 -1rem 1.1rem; padding: 1rem 1rem 0.5rem; }
+}
+@media (max-width: 520px) {
+  .wave-panel { margin: 0 -0.75rem 1rem; padding: 0.9rem 0.75rem 0.5rem; }
+}

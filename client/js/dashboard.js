@@ -58,8 +58,11 @@
       balanceEl.style.color = balance < 0 ? "var(--rust)" : "";
     }
 
-    const dayOfMonth = now.getDate();
-    L.$("#stat-daily-avg").textContent = L.money(dayOfMonth ? monthTotal / dayOfMonth : 0);
+    const todayIso = now.toISOString().slice(0, 10);
+    const todayTotal = all
+      .filter((e) => e.expense_date === todayIso)
+      .reduce((s2, e) => s2 + Number(e.amount), 0);
+    L.$("#stat-today").textContent = L.money(todayTotal);
 
     const { start: iStart, end: iEnd } = { start, end };
     const thisMonthIncome = L.state.incomes.filter((e) => e.income_date >= iStart && e.income_date <= iEnd);
@@ -95,6 +98,8 @@
 
     renderDonut(rows, monthTotal);
 
+    renderWave(now);
+
     // recent entries
     const recentEl = L.$("#recent-list");
     const recent = all.slice(0, 6);
@@ -108,4 +113,64 @@
       </div>
     `).join("") : `<p class="empty-state">No entries yet.</p>`;
   };
+
+  // ---- last-7-days wave chart -----------------------------------
+  function renderWave(now) {
+    const host = L.$("#wave-chart");
+    if (!host) return;
+
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      days.push({
+        iso: d.toISOString().slice(0, 10),
+        label: i === 0 ? "Today" : d.toLocaleDateString(undefined, { weekday: "short" }),
+        amount: 0,
+      });
+    }
+    const byDate = {};
+    for (const e of L.state.expenses) {
+      byDate[e.expense_date] = (byDate[e.expense_date] || 0) + Number(e.amount);
+    }
+    days.forEach((d) => { d.amount = byDate[d.iso] || 0; });
+
+    const W = Math.max(host.clientWidth, 320), H = 150;
+    const padX = 28, padTop = 24, padBottom = 30;
+    const max = Math.max(...days.map((d) => d.amount), 1);
+    const px = (i) => padX + (i * (W - padX * 2)) / (days.length - 1);
+    const py = (a) => padTop + (1 - a / max) * (H - padTop - padBottom);
+    const pts = days.map((d, i) => ({ x: px(i), y: py(d.amount), ...d }));
+
+    // smooth "wave" through the points (Catmull-Rom → cubic bezier)
+    let path = `M ${pts[0].x} ${pts[0].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(pts.length - 1, i + 2)];
+      const c1x = p1.x + (p2.x - p0.x) / 6, c1y = p1.y + (p2.y - p0.y) / 6;
+      const c2x = p2.x - (p3.x - p1.x) / 6, c2y = p2.y - (p3.y - p1.y) / 6;
+      path += ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y}`;
+    }
+    const area = path + ` L ${pts[pts.length - 1].x} ${H - padBottom} L ${pts[0].x} ${H - padBottom} Z`;
+
+    host.innerHTML = `
+      <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+        <defs>
+          <linearGradient id="waveFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#a9843a" stop-opacity="0.28"/>
+            <stop offset="100%" stop-color="#a9843a" stop-opacity="0.02"/>
+          </linearGradient>
+        </defs>
+        <path d="${area}" fill="url(#waveFill)"/>
+        <path d="${path}" fill="none" stroke="var(--brass)" stroke-width="2.5" stroke-linecap="round"/>
+        ${pts.map((p, i) => `
+          <circle cx="${p.x}" cy="${p.y}" r="${i === pts.length - 1 ? 5.5 : 4}"
+            fill="${i === pts.length - 1 ? "var(--rust)" : "var(--paper)"}"
+            stroke="${i === pts.length - 1 ? "var(--rust)" : "var(--brass)"}" stroke-width="2"/>
+          <text x="${p.x}" y="${H - 10}" text-anchor="middle" font-size="11"
+            fill="${i === pts.length - 1 ? "var(--rust)" : "var(--muted)"}"
+            font-family="Inter, sans-serif">${p.label}</text>
+          ${p.amount ? `<text x="${p.x}" y="${p.y - 10}" text-anchor="middle" font-size="10.5"
+            fill="var(--ink)" font-family="Inter, sans-serif">₹${Math.round(p.amount)}</text>` : ""}
+        `).join("")}
+      </svg>`;
+  }
 })();
