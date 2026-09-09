@@ -11,13 +11,7 @@ exports.csv = async (req, res) => {
     from: req.query.from || undefined,
     to: req.query.to || undefined,
   });
-  const body = csv.buildCsv(pack.rows);
-  res.setHeader("Content-Type", "text/csv; charset=utf-8");
-  res.setHeader(
-    "Content-Disposition",
-    `attachment; filename="ledger-expenses-${new Date().toISOString().slice(0, 10)}.csv"`
-  );
-  res.send(body);
+  sendCsv(res, pack, "ledger-expenses");
 };
 
 exports.pdf = async (req, res) => {
@@ -25,13 +19,44 @@ exports.pdf = async (req, res) => {
     from: req.query.from || undefined,
     to: req.query.to || undefined,
   });
+  sendPdf(res, pack, "ledger-report");
+};
+
+// ---- income reports (same shape, income table) ----
+exports.incomeCsv = async (req, res) => {
+  const pack = await reportService.incomePack(req.token, {
+    from: req.query.from || undefined,
+    to: req.query.to || undefined,
+  });
+  sendCsv(res, pack, "ledger-income");
+};
+
+exports.incomePdf = async (req, res) => {
+  const pack = await reportService.incomePack(req.token, {
+    from: req.query.from || undefined,
+    to: req.query.to || undefined,
+  });
+  sendPdf(res, pack, "ledger-income-report");
+};
+
+function sendCsv(res, pack, name) {
+  const body = csv.buildCsv(pack.rows);
+  res.setHeader("Content-Type", "text/csv; charset=utf-8");
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename="${name}-${new Date().toISOString().slice(0, 10)}.csv"`
+  );
+  res.send(body);
+}
+
+function sendPdf(res, pack, name) {
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader(
     "Content-Disposition",
-    `attachment; filename="ledger-report-${new Date().toISOString().slice(0, 10)}.pdf"`
+    `attachment; filename="${name}-${new Date().toISOString().slice(0, 10)}.pdf"`
   );
   pdf.streamReport(pack, res);
-};
+}
 
 exports.backup = async (req, res) => {
   const backup = await reportService.exportBackup(req.token);

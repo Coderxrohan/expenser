@@ -79,6 +79,16 @@
     }
   });
 
+  // ---------- exports (same as expenses tab) ----------
+  L.$("#income-export-csv-btn").addEventListener("click", (e) => {
+    e.preventDefault();
+    L.api.downloadFile("/api/reports/incomes.csv", "ledger-income.csv").catch((err) => L.toast(err.message, "error"));
+  });
+  L.$("#income-export-pdf-btn").addEventListener("click", (e) => {
+    e.preventDefault();
+    L.api.downloadFile("/api/reports/incomes.pdf", "ledger-income-report.pdf").catch((err) => L.toast(err.message, "error"));
+  });
+
   // ---------- modal ----------
   function openIncomeModal(income = null) {
     L.$("#income-error").textContent = "";

@@ -80,28 +80,13 @@
   });
 
   // ---------- exports (need the auth header, so fetch → blob) ----------
-  async function downloadReport(path, filename) {
-    try {
-      const res = await L.api.request(path);
-      const blob = new Blob([res], { type: path.endsWith(".pdf") ? "application/pdf" : "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      L.toast(e.message, "error");
-    }
-  }
-
   L.$("#export-csv-btn").addEventListener("click", (e) => {
     e.preventDefault();
-    downloadReport("/api/reports/expenses.csv", "ledger-expenses.csv");
+    L.api.downloadFile("/api/reports/expenses.csv", "ledger-expenses.csv").catch((err) => L.toast(err.message, "error"));
   });
   L.$("#export-pdf-btn").addEventListener("click", (e) => {
     e.preventDefault();
-    downloadReport("/api/reports/expenses.pdf", "ledger-report.pdf");
+    L.api.downloadFile("/api/reports/expenses.pdf", "ledger-report.pdf").catch((err) => L.toast(err.message, "error"));
   });
 
   // ---------- modal ----------
