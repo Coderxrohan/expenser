@@ -58,7 +58,7 @@
       balanceEl.style.color = balance < 0 ? "var(--rust)" : "";
     }
 
-    const todayIso = now.toISOString().slice(0, 10);
+    const todayIso = localISO(now);
     const todayTotal = all
       .filter((e) => e.expense_date === todayIso)
       .reduce((s2, e) => s2 + Number(e.amount), 0);
@@ -115,6 +115,13 @@
   };
 
   // ---- last-7-days wave chart -----------------------------------
+  // LOCAL date string — toISOString() is UTC and shifts the day in IST.
+  function localISO(d) {
+    return d.getFullYear() + "-" +
+      String(d.getMonth() + 1).padStart(2, "0") + "-" +
+      String(d.getDate()).padStart(2, "0");
+  }
+
   function renderWave(now) {
     const host = L.$("#wave-chart");
     if (!host) return;
@@ -123,7 +130,7 @@
     for (let i = 6; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
       days.push({
-        iso: d.toISOString().slice(0, 10),
+        iso: localISO(d),
         label: i === 0 ? "Today" : d.toLocaleDateString(undefined, { weekday: "short" }),
         amount: 0,
       });
