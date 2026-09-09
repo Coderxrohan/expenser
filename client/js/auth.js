@@ -21,9 +21,19 @@
   // already signed in → straight to the dashboard
   // (except when arriving from a password-reset link — that session is
   // a recovery session and must land on the new-password form instead)
+  //
+  // getUser() hits the server: a stale/expired stored session would
+  // otherwise ping-pong between login and dashboard (dashboard's API
+  // calls 401 back to login, login trusts the stored session again).
   const isResetFlow = new URLSearchParams(location.search).get("reset") === "1";
-  L.sb.auth.getSession().then(({ data }) => {
-    if (data.session && !isResetFlow) location.href = "dashboard.html";
+  L.sb.auth.getSession().then(async ({ data }) => {
+    if (!data.session || isResetFlow) return;
+    const { error } = await L.sb.auth.getUser();
+    if (error) {
+      await L.sb.auth.signOut(); // clear the dead session; stay on login
+      return;
+    }
+    location.href = "dashboard.html";
   });
 
   L.$$(".auth-tab").forEach((tab) => {
