@@ -3,7 +3,7 @@
 // budget:<category> → prompt for an amount
 // receipt:confirm / receipt:cancel → resolve an OCR draft
 // ============================================================
-const { client, ledgerUserId } = require("../services/expense.service");
+const { client, userIdForChat } = require("../services/expense.service");
 const photoHandler = require("./photo.handler");
 
 const pendingAmounts = new Map(); // chatId → category awaiting an amount
@@ -43,7 +43,7 @@ async function maybePendingBudget(chatId, text, sendMessage) {
   const amount = Number(text.replace(/[₹,\s]/g, ""));
   if (!Number.isFinite(amount) || amount <= 0) return false;
 
-  const user_id = await ledgerUserId();
+  const user_id = await userIdForChat(chatId);
   const { error } = await client()
     .from("budgets")
     .upsert({ user_id, category, monthly_limit: amount }, { onConflict: "user_id,category" });

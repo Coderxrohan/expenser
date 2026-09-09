@@ -1,9 +1,9 @@
 // /recent — last 10 expenses.
-const { client, ledgerUserId } = require("../services/expense.service");
+const { client, userIdForChat } = require("../services/expense.service");
 
 module.exports = async function recent(message, { sendMessage }) {
   const supabase = client();
-  const user_id = await ledgerUserId();
+  const user_id = await userIdForChat(chatId);
 
   const { data, error } = await supabase
     .from("transactions")

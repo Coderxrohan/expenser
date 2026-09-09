@@ -9,6 +9,10 @@ const money = (n) => CURRENCY + Number(n).toLocaleString(undefined, { minimumFra
 function streamReport(pack, res) {
   const doc = new PDFDocument({ size: "A4", margin: 50 });
   doc.pipe(res);
+  // A client aborting the download must not crash the server
+  // (write-after-end on the response stream kills the process).
+  // pdfkit 0.15 has no abort(); swallowing the stream errors is enough.
+  res.on("error", () => {});
 
   const range = pack.from || pack.to
     ? `${pack.from || "…"} to ${pack.to || "…"}`
@@ -57,7 +61,7 @@ function streamReport(pack, res) {
   doc.text("Date", cols.date);
   doc.text("Category", cols.category);
   doc.text("Note", cols.note);
-  doc.text("Amount", cols.amount, { align: "right" });
+  doc.text("Amount", cols.amount, doc.y, { align: "right" });
   doc.moveDown(0.4);
 
   doc.font("Helvetica");

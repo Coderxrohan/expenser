@@ -1,9 +1,9 @@
 // /today — today's spending.
-const { client, ledgerUserId } = require("../services/expense.service");
+const { client, userIdForChat } = require("../services/expense.service");
 
 module.exports = async function today(message, { sendMessage }) {
   const supabase = client();
-  const user_id = await ledgerUserId();
+  const user_id = await userIdForChat(chatId);
   const day = new Date().toISOString().slice(0, 10);
 
   const { data, error } = await supabase

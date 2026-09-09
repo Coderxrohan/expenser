@@ -1,15 +1,17 @@
 // ============================================================
 // Ledger — telegram expense service
 // Bridge between bot commands and the Supabase-backed data.
-// The bot is single-user by design: it acts as the Ledger owner,
-// identified by LEDGER_OWNER_EMAIL in .env (server-side, using
-// the service-role key — never exposed to the client).
+// Multi-user: each Telegram chat is mapped to a Ledger account
+// via public.telegram_links (linked from the website panel).
+// LEDGER_OWNER_EMAIL remains as a fallback for an unlinked chat.
+// Runs server-side with the service-role key — never exposed.
 // ============================================================
 const { createClient } = require("@supabase/supabase-js");
 const env = require("../../server/src/config/env");
 
 let clientCache = null;
-let userIdCache = null;
+let userIdCache = null; // owner-email fallback
+const chatUserCache = new Map(); // chat_id -> user_id
 
 function client() {
   if (!env.supabaseServiceKey) {
@@ -23,7 +25,11 @@ function client() {
   return clientCache;
 }
 
-// Resolve the ledger owner's user id once from their email.
+function normalizeChatId(v) {
+  return String(v ?? "").replace(/\D/g, "");
+}
+
+// Resolve the ledger owner's user id once from their email (fallback mode).
 async function ledgerUserId() {
   if (userIdCache) return userIdCache;
   const email = env.ledgerOwnerEmail;
@@ -38,4 +44,43 @@ async function ledgerUserId() {
   return userIdCache;
 }
 
-module.exports = { client, ledgerUserId };
+// Resolve the account a chat belongs to: telegram_links first,
+// then the LEDGER_OWNER_EMAIL fallback. Cached per chat.
+async function userIdForChat(chatId) {
+  const chat = normalizeChatId(chatId);
+  if (!chat) throw new Error("Unknown chat.");
+
+  if (chatUserCache.has(chat)) return chatUserCache.get(chat);
+
+  const { data, error } = await client()
+    .from("telegram_links")
+    .select("user_id")
+    .eq("chat_id", chat)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+
+  let userId = data?.user_id || null;
+  if (!userId) userId = await userIdForChat(chatId); // fallback: single-owner setup
+  chatUserCache.set(chat, userId);
+  return userId;
+}
+
+// A chat may talk to the bot if it is linked in telegram_links,
+// or if it matches TELEGRAM_CHAT_ID (owner fallback).
+async function isChatAllowed(chatId) {
+  const chat = normalizeChatId(chatId);
+  if (!chat) return false;
+  if (env.telegramChatId && chat === normalizeChatId(env.telegramChatId)) return true;
+  try {
+    const { data } = await client()
+      .from("telegram_links")
+      .select("user_id")
+      .eq("chat_id", chat)
+      .maybeSingle();
+    return !!data;
+  } catch {
+    return false;
+  }
+}
+
+module.exports = { client, ledgerUserId, userIdForChat, isChatAllowed };

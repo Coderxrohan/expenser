@@ -1,10 +1,10 @@
 // /balance — budget usage for the current month.
-const { client, ledgerUserId } = require("../services/expense.service");
+const { client, userIdForChat } = require("../services/expense.service");
 const { monthRange } = require("../../server/src/services/expense.service");
 
 module.exports = async function balance(message, { sendMessage }) {
   const supabase = client();
-  const user_id = await ledgerUserId();
+  const user_id = await userIdForChat(chatId);
   const { start, end } = monthRange(new Date());
 
   const [budgets, spent] = await Promise.all([

@@ -53,6 +53,27 @@ window.Ledger = {
     return div.innerHTML;
   };
 
+  // ---------- state cache ----------
+  // Pages are separate HTML documents; sessionStorage lets each page
+  // paint instantly from the previous page's data, then revalidate.
+  const CACHE_KEY = "ledger_state_cache";
+
+  L.persistStateCache = function () {
+    try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(L.state)); } catch {}
+  };
+
+  L.loadCachedState = function () {
+    try {
+      const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) || "null");
+      if (cached && Array.isArray(cached.expenses) && Array.isArray(cached.incomes)) {
+        L.state.expenses = cached.expenses;
+        L.state.incomes = cached.incomes;
+        return true;
+      }
+    } catch {}
+    return false;
+  };
+
   // ---------- UI primitives ----------
   L.setLoading = (isLoading) => {
     const el = L.$("#loading-overlay");
@@ -174,7 +195,13 @@ window.Ledger = {
       return;
     }
 
-    L.setLoading(true);
+    // paint cached data immediately (if any), then revalidate quietly
+    const hadCache = L.loadCachedState();
+    if (page === "dashboard") L.renderDashboard();
+    if (page === "expenses") L.renderExpensesTable();
+    if (page === "income") L.renderIncomesTable();
+
+    L.setLoading(!hadCache);
     try {
       if (page !== "analytics") await L.refreshData();
       if (page === "dashboard") L.renderDashboard();

@@ -48,6 +48,7 @@
     ]);
     L.state.expenses = exp.expenses || [];
     L.state.incomes = inc.incomes || [];
+    L.persistStateCache();
   };
 
   // ---------- expenses ----------
@@ -63,6 +64,13 @@
     deleteIncome: (id) => request(`/api/incomes/${id}`, { method: "DELETE" }),
 
     analytics: () => request("/api/expenses/analytics"),
+
+    telegramLinks: {
+      list: () => request("/api/telegram/links"),
+      create: (payload) => request("/api/telegram/links", { method: "POST", body: payload }),
+      update: (id, payload) => request(`/api/telegram/links/${id}`, { method: "PATCH", body: payload }),
+      remove: (id) => request(`/api/telegram/links/${id}`, { method: "DELETE" }),
+    },
 
     // Binary-safe download (CSV / PDF) — fetches with the auth header
     // and saves via a blob.

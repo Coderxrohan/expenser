@@ -1,5 +1,5 @@
 // /add 500 food [note…] — create an expense.
-const { client, ledgerUserId } = require("../services/expense.service");
+const { client, userIdForChat } = require("../services/expense.service");
 const notification = require("../services/notification.service");
 const { CATEGORIES, parseAmount, parseDate } = require("../../server/src/utils/validation");
 
@@ -29,7 +29,7 @@ module.exports = async function add(message, { sendMessage }) {
   }
 
   const note = noteParts.join(" ").slice(0, 200) || null;
-  const user_id = await ledgerUserId();
+  const user_id = await userIdForChat(chatId);
 
   const { data, error } = await client()
     .from("transactions")
@@ -39,5 +39,4 @@ module.exports = async function add(message, { sendMessage }) {
   if (error) throw new Error(error.message);
 
   await sendMessage(chatId, `✅ Added ₹${amount} — <b>${category}</b>${note ? ` (${note})` : ""}`);
-  await notification.expenseConfirmation(data);
 };

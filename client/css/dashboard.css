@@ -332,3 +332,39 @@
 .compare-table td:last-child, .compare-table th:last-child { text-align: right; }
 .delta-up { color: var(--rust); }
 .delta-down { color: var(--sage); }
+
+/* ============ Telegram link panel ============ */
+.tg-panel { margin-top: 18px; }
+.tg-hint { font-size: 13px; color: var(--ink-soft, #666); margin: 6px 0 12px; line-height: 1.5; }
+.tg-hint code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; }
+.tg-form { display: flex; gap: 8px; flex-wrap: wrap; }
+.tg-form input {
+  flex: 1 1 180px; padding: 9px 12px; border: 1px solid var(--line, #ddd8c8);
+  border-radius: 8px; font: inherit; background: #fff;
+}
+.tg-links { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.tg-link-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 12px; border: 1px solid var(--line, #e5e0d0); border-radius: 8px; background: #fff;
+}
+.tg-link-main { display: flex; flex-direction: column; gap: 2px; }
+.tg-chat-id { font-weight: 600; font-variant-numeric: tabular-nums; }
+.tg-label { font-size: 12.5px; color: var(--ink-soft, #777); }
+
+/* ============ Connectors page ============ */
+.connectors-intro { font-size: 14px; color: var(--ink-soft, #666); margin: 4px 0 16px; max-width: 640px; line-height: 1.5; }
+.connectors-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+.connector-card { display: flex; flex-direction: column; gap: 10px; }
+.connector-head { display: flex; align-items: center; gap: 12px; }
+.connector-icon {
+  width: 40px; height: 40px; border-radius: 10px; flex: 0 0 auto;
+  display: grid; place-items: center; background: var(--pine, #2c4c44); color: #f4efe2;
+}
+.connector-card-soon .connector-icon { background: var(--line, #ddd8c8); color: #555; }
+.connector-head .panel-title { margin: 0; }
+.connector-sub { font-size: 12.5px; color: var(--ink-soft, #777); margin: 2px 0 0; }
+.connector-status {
+  margin-left: auto; font-size: 11.5px; font-weight: 600; letter-spacing: .03em;
+  padding: 3px 10px; border-radius: 999px; background: rgba(95,130,103,.15); color: var(--sage, #5f8267);
+}
+.connector-status-soon { background: rgba(0,0,0,.06); color: #888; }

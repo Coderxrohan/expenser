@@ -2,7 +2,7 @@
 // Telegram — photo handler
 // Receipt photo → OCR → confirm → create expense (+ stored receipt).
 // ============================================================
-const { client, ledgerUserId } = require("../services/expense.service");
+const { client, userIdForChat } = require("../services/expense.service");
 const notification = require("../services/notification.service");
 const ocr = require("../../ocr/ocr.service");
 const logger = require("../../server/src/utils/logger");
@@ -24,7 +24,7 @@ async function handle(message, { sendMessage }) {
 
   const photo = message.photo?.[message.photo.length - 1] || message.document;
   const buffer = await downloadPhoto(photo.file_id);
-  const user_id = await ledgerUserId();
+  const user_id = await userIdForChat(chatId);
 
   let ocrResult;
   try {
@@ -101,7 +101,6 @@ async function confirmDraft(sendMessage, chatId) {
   }
 
   await sendMessage(chatId, `✅ Saved ₹${data.amount} — <b>${data.category}</b>`);
-  await notification.expenseConfirmation(data);
 }
 
 async function cancelDraft(sendMessage, chatId) {

@@ -56,7 +56,7 @@ async function handleUpdate(update) {
   const chatId = update.message?.chat?.id ?? update.callback_query?.message?.chat?.id;
   if (!chatId) return;
 
-  const allowed = notification.allowedChat(env, chatId);
+  const allowed = await require('./services/expense.service').isChatAllowed(chatId);
   if (!allowed) {
     return sendMessage(
       chatId,
