@@ -464,3 +464,18 @@
 }
 .cat-move:disabled { opacity: 0.3; cursor: default; }
 .cat-row .cat-name { flex: 1; }
+
+/* spent (hero) and balance cards carry their own identity colors */
+.stat-card-spent {
+  background: linear-gradient(150deg, #8a4238, var(--rust) 55%, #7c352c);
+  border: none;
+  color: var(--paper);
+}
+.stat-card-spent .stat-label { color: rgba(251, 250, 245, 0.75); }
+.stat-card-spent .stat-sub { color: rgba(251, 250, 245, 0.75); }
+
+.stat-card-balance {
+  background: linear-gradient(150deg, #eaf2e3, #dbe9d3 60%, #d2e4c8);
+  border-color: #c3d8b8;
+}
+.stat-card-balance .stat-label { color: #4c6b52; }
