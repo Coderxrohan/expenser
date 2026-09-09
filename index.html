@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ledger — Expense Manager</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%231f3a34'/%3E%3Ctext x='50' y='68' font-size='58' font-family='Georgia,serif' fill='%23a9843a' text-anchor='middle'%3E%C2%A7%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ============ LOADING OVERLAY ============ -->
+<div id="loading-overlay" class="loading-overlay hidden">
+  <div class="loading-mark">§</div>
+</div>
+
+<!-- ============ TOASTS ============ -->
+<div id="toast-stack" class="toast-stack"></div>
+
+<!-- ============ CONFIRM DIALOG ============ -->
+<div id="confirm-modal" class="modal-overlay hidden">
+  <div class="modal modal-sm">
+    <h2 id="confirm-title">Are you sure?</h2>
+    <p id="confirm-message" class="confirm-message"></p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="confirm-cancel">Cancel</button>
+      <button type="button" class="btn btn-danger" id="confirm-ok">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ AUTH SCREEN ============ -->
+<section id="auth-screen" class="auth-screen">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <span class="brand-mark">§</span>
+      <span class="brand-name">Ledger</span>
+    </div>
+    <p class="auth-tagline">A quiet place to keep the books.</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login">Log in</button>
+      <button class="auth-tab" data-tab="signup">Sign up</button>
+    </div>
+
+    <form id="login-form" class="auth-form">
+      <label>Email
+        <input type="email" id="login-email" required autocomplete="email" />
+      </label>
+      <label>Password
+        <input type="password" id="login-password" required autocomplete="current-password" />
+      </label>
+      <button type="submit" class="btn btn-primary btn-block">Log in</button>
+      <p class="auth-error" id="login-error"></p>
+    </form>
+
+    <form id="signup-form" class="auth-form hidden">
+      <label>Email
+        <input type="email" id="signup-email" required autocomplete="email" />
+      </label>
+      <label>Password
+        <input type="password" id="signup-password" required minlength="6" autocomplete="new-password" />
+      </label>
+      <button type="submit" class="btn btn-primary btn-block">Create account</button>
+      <p class="auth-error" id="signup-error"></p>
+      <p class="auth-note" id="signup-note"></p>
+    </form>
+  </div>
+</section>
+
+<!-- ============ APP SHELL ============ -->
+<div id="app-shell" class="app-shell hidden">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-mark">§</span>
+      <span class="brand-name">Ledger</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-tab active" data-view="dashboard">Dashboard</button>
+      <button class="nav-tab" data-view="expenses">Expenses</button>
+      <button class="nav-tab" data-view="budgets">Budgets</button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <p class="sidebar-email" id="user-email"></p>
+      <button class="btn btn-ghost btn-block" id="logout-btn">Log out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ---------- DASHBOARD VIEW ---------- -->
+    <section id="view-dashboard" class="view">
+      <header class="view-header">
+        <div>
+          <p class="eyebrow-plain">This month</p>
+          <h1 id="month-label">—</h1>
+        </div>
+        <button class="btn btn-primary" id="quick-add-btn">+ Add expense</button>
+      </header>
+
+      <div class="stat-row">
+        <div class="stat-card stat-card-hero">
+          <p class="stat-label">Spent this month</p>
+          <p class="stat-figure" id="stat-month-total">₹0</p>
+          <p class="stat-sub" id="stat-month-diff">—</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Daily average</p>
+          <p class="stat-figure stat-figure-sm" id="stat-daily-avg">₹0</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Transactions</p>
+          <p class="stat-figure stat-figure-sm" id="stat-count">0</p>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="panel">
+          <h2 class="panel-title">By category</h2>
+          <div class="donut-wrap">
+            <svg id="donut-chart" viewBox="0 0 120 120" class="donut-svg"></svg>
+            <div class="donut-center">
+              <span class="donut-center-label">Total</span>
+              <span class="donut-center-figure" id="donut-center-figure">₹0</span>
+            </div>
+          </div>
+          <div id="category-breakdown" class="category-breakdown"></div>
+        </div>
+        <div class="panel">
+          <h2 class="panel-title">Recent entries</h2>
+          <div id="recent-list" class="recent-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- EXPENSES VIEW ---------- -->
+    <section id="view-expenses" class="view hidden">
+      <header class="view-header">
+        <div>
+          <p class="eyebrow-plain">All entries</p>
+          <h1>Expenses</h1>
+        </div>
+        <button class="btn btn-primary" id="add-expense-btn">+ Add expense</button>
+      </header>
+
+      <div class="filter-bar">
+        <input type="text" id="filter-search" placeholder="Search notes…" />
+        <select id="filter-category">
+          <option value="">All categories</option>
+        </select>
+        <input type="date" id="filter-from" />
+        <span class="filter-sep">to</span>
+        <input type="date" id="filter-to" />
+        <button class="btn btn-ghost" id="filter-clear">Clear</button>
+      </div>
+
+      <div class="ledger-table-wrap">
+        <table class="ledger-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Note</th>
+              <th class="align-right">Amount</th>
+              <th class="align-right">—</th>
+            </tr>
+          </thead>
+          <tbody id="expenses-tbody"></tbody>
+        </table>
+        <p id="expenses-empty" class="empty-state hidden">No entries yet. The page is blank — add the first line.</p>
+      </div>
+    </section>
+
+    <!-- ---------- BUDGETS VIEW ---------- -->
+    <section id="view-budgets" class="view hidden">
+      <header class="view-header">
+        <div>
+          <p class="eyebrow-plain">Monthly limits</p>
+          <h1>Budgets</h1>
+        </div>
+      </header>
+
+      <div class="panel">
+        <form id="budget-form" class="budget-form">
+          <select id="budget-category" required></select>
+          <input type="number" id="budget-amount" min="0" step="0.01" placeholder="Monthly limit" required />
+          <button type="submit" class="btn btn-primary">Set budget</button>
+        </form>
+      </div>
+
+      <div id="budgets-list" class="budgets-list"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ EXPENSE MODAL ============ -->
+<div id="expense-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <h2 id="modal-title">Add expense</h2>
+    <form id="expense-form">
+      <input type="hidden" id="expense-id" />
+      <label>Amount
+        <input type="number" id="expense-amount" min="0.01" step="0.01" required />
+      </label>
+      <label>Category
+        <select id="expense-category" required></select>
+      </label>
+      <label>Date
+        <input type="date" id="expense-date" required />
+      </label>
+      <label>Note (optional)
+        <input type="text" id="expense-note" maxlength="200" />
+      </label>
+      <p class="auth-error" id="expense-error"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="modal-cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="modal-save">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
