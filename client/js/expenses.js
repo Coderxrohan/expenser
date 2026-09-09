@@ -3,6 +3,11 @@
 // ============================================================
 (function () {
   const L = window.Ledger;
+  const hasTable = !!L.$("#expenses-tbody");
+  const hasModal = !!L.$("#expense-form");
+  if (!hasTable && !hasModal) return;
+
+  let openExpenseModal = () => {};
 
   function getFilteredExpenses() {
     const search = L.$("#filter-search").value.trim().toLowerCase();
@@ -18,6 +23,8 @@
       return true;
     });
   }
+
+  if (!hasTable) return initModal();
 
   L.renderExpensesTable = function () {
     const rows = getFilteredExpenses();
@@ -71,7 +78,7 @@
         await L.api.deleteExpense(id);
         L.toast("Expense deleted.", "success");
         await L.refreshData();
-        L.renderDashboard();
+        L.renderDashboard?.();
         L.renderExpensesTable();
       } catch (err) {
         L.toast(err.message, "error");
@@ -89,59 +96,63 @@
     L.api.downloadFile("/api/reports/expenses.pdf", "ledger-report.pdf").catch((err) => L.toast(err.message, "error"));
   });
 
-  // ---------- modal ----------
-  function openExpenseModal(expense = null) {
-    L.$("#expense-error").textContent = "";
-    L.$("#modal-title").textContent = expense ? "Edit expense" : "Add expense";
-    L.$("#expense-id").value = expense ? expense.id : "";
-    L.$("#expense-amount").value = expense ? expense.amount : "";
-    L.$("#expense-category").value = expense ? expense.category : L.CATEGORIES[0];
-    L.$("#expense-method").value = expense?.payment_method || "cash";
-    L.$("#expense-date").value = expense ? expense.expense_date : L.todayISO();
-    L.$("#expense-note").value = expense ? (expense.note || "") : "";
-    L.$("#expense-modal").classList.remove("hidden");
-  }
+  // ---------- modal (dashboard quick-add + expenses page) ----------
+  function initModal() {
+    openExpenseModal = function (expense = null) {
+      L.$("#expense-error").textContent = "";
+      L.$("#modal-title").textContent = expense ? "Edit expense" : "Add expense";
+      L.$("#expense-id").value = expense ? expense.id : "";
+      L.$("#expense-amount").value = expense ? expense.amount : "";
+      L.$("#expense-category").value = expense ? expense.category : L.CATEGORIES[0];
+      L.$("#expense-method").value = expense?.payment_method || "cash";
+      L.$("#expense-date").value = expense ? expense.expense_date : L.todayISO();
+      L.$("#expense-note").value = expense ? (expense.note || "") : "";
+      L.$("#expense-modal").classList.remove("hidden");
+    }
 
-  function closeExpenseModal() {
-    L.$("#expense-modal").classList.add("hidden");
-  }
+    function closeExpenseModal() {
+      L.$("#expense-modal").classList.add("hidden");
+    }
 
-  L.$("#quick-add-btn").addEventListener("click", () => openExpenseModal());
-  L.$("#add-expense-btn").addEventListener("click", () => openExpenseModal());
-  L.$("#modal-cancel").addEventListener("click", closeExpenseModal);
-  L.$("#expense-modal").addEventListener("click", (e) => {
-    if (e.target.id === "expense-modal") closeExpenseModal();
-  });
+    L.$("#quick-add-btn")?.addEventListener("click", () => openExpenseModal());
+    L.$("#add-expense-btn")?.addEventListener("click", () => openExpenseModal());
+    L.$("#modal-cancel").addEventListener("click", closeExpenseModal);
+    L.$("#expense-modal").addEventListener("click", (e) => {
+      if (e.target.id === "expense-modal") closeExpenseModal();
+    });
 
-  L.$("#expense-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    L.$("#expense-error").textContent = "";
+    L.$("#expense-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      L.$("#expense-error").textContent = "";
 
-    const id = L.$("#expense-id").value;
-    const payload = {
-      amount: parseFloat(L.$("#expense-amount").value),
-      category: L.$("#expense-category").value,
-      payment_method: L.$("#expense-method").value,
-      expense_date: L.$("#expense-date").value,
-      note: L.$("#expense-note").value.trim() || null,
-    };
+      const id = L.$("#expense-id").value;
+      const payload = {
+        amount: parseFloat(L.$("#expense-amount").value),
+        category: L.$("#expense-category").value,
+        payment_method: L.$("#expense-method").value,
+        expense_date: L.$("#expense-date").value,
+        note: L.$("#expense-note").value.trim() || null,
+      };
 
-    const saveBtn = L.$("#modal-save");
-    await L.withButtonLoading(saveBtn, "Saving…", async () => {
-      try {
-        if (id) {
-          await L.api.updateExpense(id, payload);
-        } else {
-          await L.api.createExpense(payload);
+      const saveBtn = L.$("#modal-save");
+      await L.withButtonLoading(saveBtn, "Saving…", async () => {
+        try {
+          if (id) {
+            await L.api.updateExpense(id, payload);
+          } else {
+            await L.api.createExpense(payload);
+          }
+          closeExpenseModal();
+          L.toast(id ? "Expense updated." : "Expense added.", "success");
+          await L.refreshData();
+          L.renderDashboard?.();
+          L.renderExpensesTable?.();
+        } catch (err) {
+          L.$("#expense-error").textContent = err.message;
         }
-        closeExpenseModal();
-        L.toast(id ? "Expense updated." : "Expense added.", "success");
-        await L.refreshData();
-        L.renderDashboard();
-        L.renderExpensesTable();
-      } catch (err) {
-        L.$("#expense-error").textContent = err.message;
-      }
-    })();
-  });
+      })();
+    });
+  }
+
+  if (hasModal) initModal();
 })();

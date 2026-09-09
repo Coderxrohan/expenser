@@ -32,6 +32,8 @@
   flex: 1;
 }
 .nav-tab {
+  display: block;
+  text-decoration: none;
   text-align: left;
   background: none;
   border: none;

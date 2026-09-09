@@ -139,33 +139,19 @@ window.Ledger = {
     L.$("#app-shell")?.classList.remove("hidden");
   };
 
-  // ---------- navigation (dashboard page) ----------
-  L.initNavTabs = () => {
-    L.$$(".nav-tab").forEach((tab) => {
-      tab.addEventListener("click", () => {
-        L.$$(".nav-tab").forEach((t) => t.classList.remove("active"));
-        tab.classList.add("active");
-        L.$$(".view").forEach((v) => v.classList.add("hidden"));
-        L.$(`#view-${tab.dataset.view}`)?.classList.remove("hidden");
-        // analytics renders lazily — it needs a fresh API call
-        if (tab.dataset.view === "analytics" && L.renderAnalytics) L.renderAnalytics();
-      });
-    });
-  };
-
   // ---------- boot ----------
   document.addEventListener("DOMContentLoaded", async () => {
     L.populateCategorySelects();
 
     // login page: handled by auth.js
-    if (!L.$("#app-shell")) return;
+    const page = document.body.dataset.page;
+    if (!page) return;
 
     if (!L.sb) {
       location.href = "login.html";
       return;
     }
 
-    L.initNavTabs();
     const logoutBtn = L.$("#logout-btn");
     if (logoutBtn) {
       logoutBtn.addEventListener("click", async () => {
@@ -190,10 +176,11 @@ window.Ledger = {
 
     L.setLoading(true);
     try {
-      await L.refreshData();
-      L.renderDashboard();
-      L.renderExpensesTable();
-      L.renderIncomesTable();
+      if (page !== "analytics") await L.refreshData();
+      if (page === "dashboard") L.renderDashboard();
+      if (page === "expenses") L.renderExpensesTable();
+      if (page === "income") L.renderIncomesTable();
+      if (page === "analytics") await L.renderAnalytics();
     } catch (e) {
       L.toast(e.message, "error");
     } finally {

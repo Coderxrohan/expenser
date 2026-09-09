@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Analytics — Ledger</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%231f3a34'/%3E%3Ctext x='50' y='68' font-size='58' font-family='Georgia,serif' fill='%23a9843a' text-anchor='middle'%3E%C2%A7%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/dashboard.css" />
+<link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body data-page="analytics">
+
+<div id="loading-overlay" class="loading-overlay hidden">
+  <div class="loading-mark">§</div>
+</div>
+<div id="toast-stack" class="toast-stack"></div>
+
+<div id="app-shell" class="app-shell">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-mark">§</span>
+      <span class="brand-name">Ledger</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-tab" href="dashboard.html">Dashboard</a>
+      <a class="nav-tab" href="expenses.html">Expenses</a>
+      <a class="nav-tab" href="income.html">Income</a>
+      <a class="nav-tab active" href="analytics.html">Analytics</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <p class="sidebar-email" id="user-email"></p>
+      <button class="btn btn-ghost btn-block" id="logout-btn">Log out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="view-header">
+      <div>
+        <p class="eyebrow-plain">Insights</p>
+        <h1>Analytics</h1>
+      </div>
+    </header>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <p class="stat-label">Month-over-month</p>
+        <p class="stat-figure stat-figure-sm" id="ana-mom">—</p>
+      </div>
+      <div class="stat-card">
+        <p class="stat-label">Avg per transaction</p>
+        <p class="stat-figure stat-figure-sm" id="ana-avg-txn">₹0</p>
+      </div>
+    </div>
+
+    <div class="analytics-grid">
+      <div class="panel">
+        <h2 class="panel-title">Daily spending this month</h2>
+        <svg id="trend-chart" class="trend-chart" viewBox="0 0 500 160" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="panel">
+        <h2 class="panel-title">Top merchants</h2>
+        <div id="merchants-list" class="merchants-list"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 class="panel-title">Category comparison (this vs last month)</h2>
+      <table class="compare-table">
+        <thead>
+          <tr><th>Category</th><th>This month</th><th>Last month</th><th>Δ</th></tr>
+        </thead>
+        <tbody id="compare-tbody"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="js/app.js"></script>
+<script src="js/api.js"></script>
+<script src="js/analytics.js"></script>
+</body>
+</html>
