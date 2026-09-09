@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Dashboard — Ledger</title>
+<title>Expenses — Ledger</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%231f3a34'/%3E%3Ctext x='50' y='68' font-size='58' font-family='Georgia,serif' fill='%23a9843a' text-anchor='middle'%3E%C2%A7%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="css/dashboard.css" />
 <link rel="stylesheet" href="css/responsive.css" />
 </head>
-<body data-page="dashboard">
+<body data-page="expenses">
 
 <div id="loading-overlay" class="loading-overlay hidden">
   <div class="loading-mark">§</div>
@@ -38,8 +38,8 @@
     </div>
 
     <nav class="sidebar-nav">
-      <a class="nav-tab active" href="dashboard.html">Dashboard</a>
-      <a class="nav-tab" href="expenses.html">Expenses</a>
+      <a class="nav-tab" href="dashboard.html">Dashboard</a>
+      <a class="nav-tab active" href="expenses.html">Expenses</a>
       <a class="nav-tab" href="income.html">Income</a>
       <a class="nav-tab" href="analytics.html">Analytics</a>
     </nav>
@@ -53,51 +53,41 @@
   <main class="main">
     <header class="view-header">
       <div>
-        <p class="eyebrow-plain">This month</p>
-        <h1 id="month-label">—</h1>
+        <p class="eyebrow-plain">All entries</p>
+        <h1>Expenses</h1>
       </div>
       <div class="row-actions">
-        <button class="btn btn-ghost" id="quick-add-income-btn">+ Add income</button>
-        <button class="btn btn-primary" id="quick-add-btn">+ Add expense</button>
+        <a class="btn btn-ghost" href="/api/reports/expenses.csv" id="export-csv-btn">Export CSV</a>
+        <a class="btn btn-ghost" href="/api/reports/expenses.pdf" id="export-pdf-btn">PDF report</a>
+        <button class="btn btn-primary" id="add-expense-btn">+ Add expense</button>
       </div>
     </header>
 
-    <div class="stat-row">
-      <div class="stat-card stat-card-hero">
-        <p class="stat-label">Spent this month</p>
-        <p class="stat-figure" id="stat-month-total">₹0</p>
-        <p class="stat-sub" id="stat-month-diff">—</p>
-      </div>
-      <div class="stat-card">
-        <p class="stat-label">Daily average</p>
-        <p class="stat-figure stat-figure-sm" id="stat-daily-avg">₹0</p>
-      </div>
-      <div class="stat-card">
-        <p class="stat-label">Earned this month</p>
-        <p class="stat-figure stat-figure-sm" id="stat-income">₹0</p>
-      </div>
-      <div class="stat-card">
-        <p class="stat-label">Transactions</p>
-        <p class="stat-figure stat-figure-sm" id="stat-count">0</p>
-      </div>
+    <div class="filter-bar">
+      <input type="text" id="filter-search" placeholder="Search notes…" />
+      <select id="filter-category">
+        <option value="">All categories</option>
+      </select>
+      <input type="date" id="filter-from" />
+      <span class="filter-sep">to</span>
+      <input type="date" id="filter-to" />
+      <button class="btn btn-ghost" id="filter-clear">Clear</button>
     </div>
 
-    <div class="dash-grid">
-      <div class="panel">
-        <h2 class="panel-title">By category</h2>
-        <div class="donut-wrap">
-          <svg id="donut-chart" viewBox="0 0 120 120" class="donut-svg"></svg>
-          <div class="donut-center">
-            <span class="donut-center-label">Total</span>
-            <span class="donut-center-figure" id="donut-center-figure">₹0</span>
-          </div>
-        </div>
-        <div id="category-breakdown" class="category-breakdown"></div>
-      </div>
-      <div class="panel">
-        <h2 class="panel-title">Recent entries</h2>
-        <div id="recent-list" class="recent-list"></div>
-      </div>
+    <div class="ledger-table-wrap">
+      <table class="ledger-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Note</th>
+            <th class="align-right">Amount</th>
+            <th class="align-right">—</th>
+          </tr>
+        </thead>
+        <tbody id="expenses-tbody"></tbody>
+      </table>
+      <p id="expenses-empty" class="empty-state hidden">No entries yet. The page is blank — add the first line.</p>
     </div>
   </main>
 </div>
@@ -139,49 +129,10 @@
   </div>
 </div>
 
-<!-- ============ INCOME MODAL ============ -->
-<div id="income-modal" class="modal-overlay hidden">
-  <div class="modal">
-    <h2 id="income-modal-title">Add income</h2>
-    <form id="income-form">
-      <input type="hidden" id="income-id" />
-      <label>Amount
-        <input type="number" id="income-amount" min="0.01" step="0.01" required />
-      </label>
-      <label>Source
-        <select id="income-category" required></select>
-      </label>
-      <label>Payment method
-        <select id="income-method" required>
-          <option value="cash">Cash</option>
-          <option value="upi">UPI</option>
-          <option value="credit_card">Credit card</option>
-          <option value="debit_card">Debit card</option>
-          <option value="bank_transfer">Bank transfer</option>
-          <option value="wallet">Wallet</option>
-        </select>
-      </label>
-      <label>Date
-        <input type="date" id="income-date" required />
-      </label>
-      <label>Note (optional)
-        <input type="text" id="income-note" maxlength="200" />
-      </label>
-      <p class="auth-error" id="income-error"></p>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-ghost" id="income-modal-cancel">Cancel</button>
-        <button type="submit" class="btn btn-primary" id="income-modal-save">Save</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 <script src="js/app.js"></script>
 <script src="js/api.js"></script>
-<script src="js/dashboard.js"></script>
 <script src="js/expenses.js"></script>
-<script src="js/income.js"></script>
 </body>
 </html>

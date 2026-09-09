@@ -4,6 +4,11 @@
 // ============================================================
 (function () {
   const L = window.Ledger;
+  const hasTable = !!L.$("#incomes-tbody");
+  const hasModal = !!L.$("#income-form");
+  if (!hasTable && !hasModal) return;
+
+  let openIncomeModal = () => {};
 
   function getFilteredIncomes() {
     const search = L.$("#income-filter-search").value.trim().toLowerCase();
@@ -18,6 +23,11 @@
       if (to && e.income_date > to) return false;
       return true;
     });
+  }
+
+  if (!hasTable) {
+    if (hasModal) initModal();
+    return;
   }
 
   L.renderIncomesTable = function () {
@@ -71,7 +81,7 @@
         await L.api.deleteIncome(id);
         L.toast("Income deleted.", "success");
         await L.refreshData();
-        L.renderDashboard();
+        L.renderDashboard?.();
         L.renderIncomesTable();
       } catch (err) {
         L.toast(err.message, "error");
@@ -79,59 +89,73 @@
     }
   });
 
-  // ---------- modal ----------
-  function openIncomeModal(income = null) {
-    L.$("#income-error").textContent = "";
-    L.$("#income-modal-title").textContent = income ? "Edit income" : "Add income";
-    L.$("#income-id").value = income ? income.id : "";
-    L.$("#income-amount").value = income ? income.amount : "";
-    L.$("#income-category").value = income ? income.category : L.INCOME_CATEGORIES[0];
-    L.$("#income-method").value = income?.payment_method || "cash";
-    L.$("#income-date").value = income ? income.income_date : L.todayISO();
-    L.$("#income-note").value = income ? (income.note || "") : "";
-    L.$("#income-modal").classList.remove("hidden");
-  }
-
-  function closeIncomeModal() {
-    L.$("#income-modal").classList.add("hidden");
-  }
-
-  L.$("#add-income-btn").addEventListener("click", () => openIncomeModal());
-  L.$("#quick-add-income-btn").addEventListener("click", () => openIncomeModal());
-  L.$("#income-modal-cancel").addEventListener("click", closeIncomeModal);
-  L.$("#income-modal").addEventListener("click", (e) => {
-    if (e.target.id === "income-modal") closeIncomeModal();
+  // ---------- exports (same as expenses tab) ----------
+  L.$("#income-export-csv-btn").addEventListener("click", (e) => {
+    e.preventDefault();
+    L.api.downloadFile("/api/reports/incomes.csv", "ledger-income.csv").catch((err) => L.toast(err.message, "error"));
+  });
+  L.$("#income-export-pdf-btn").addEventListener("click", (e) => {
+    e.preventDefault();
+    L.api.downloadFile("/api/reports/incomes.pdf", "ledger-income-report.pdf").catch((err) => L.toast(err.message, "error"));
   });
 
-  L.$("#income-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    L.$("#income-error").textContent = "";
-
-    const id = L.$("#income-id").value;
-    const payload = {
-      amount: parseFloat(L.$("#income-amount").value),
-      category: L.$("#income-category").value,
-      payment_method: L.$("#income-method").value,
-      income_date: L.$("#income-date").value,
-      note: L.$("#income-note").value.trim() || null,
+  // ---------- modal (dashboard quick-add + income page) ----------
+  function initModal() {
+    openIncomeModal = function (income = null) {
+      L.$("#income-error").textContent = "";
+      L.$("#income-modal-title").textContent = income ? "Edit income" : "Add income";
+      L.$("#income-id").value = income ? income.id : "";
+      L.$("#income-amount").value = income ? income.amount : "";
+      L.$("#income-category").value = income ? income.category : L.INCOME_CATEGORIES[0];
+      L.$("#income-method").value = income?.payment_method || "cash";
+      L.$("#income-date").value = income ? income.income_date : L.todayISO();
+      L.$("#income-note").value = income ? (income.note || "") : "";
+      L.$("#income-modal").classList.remove("hidden");
     };
 
-    const saveBtn = L.$("#income-modal-save");
-    await L.withButtonLoading(saveBtn, "Saving…", async () => {
-      try {
-        if (id) {
-          await L.api.updateIncome(id, payload);
-        } else {
-          await L.api.createIncome(payload);
+    function closeIncomeModal() {
+      L.$("#income-modal").classList.add("hidden");
+    }
+
+    L.$("#add-income-btn")?.addEventListener("click", () => openIncomeModal());
+    L.$("#quick-add-income-btn")?.addEventListener("click", () => openIncomeModal());
+    L.$("#income-modal-cancel").addEventListener("click", closeIncomeModal);
+    L.$("#income-modal").addEventListener("click", (e) => {
+      if (e.target.id === "income-modal") closeIncomeModal();
+    });
+
+    L.$("#income-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      L.$("#income-error").textContent = "";
+
+      const id = L.$("#income-id").value;
+      const payload = {
+        amount: parseFloat(L.$("#income-amount").value),
+        category: L.$("#income-category").value,
+        payment_method: L.$("#income-method").value,
+        income_date: L.$("#income-date").value,
+        note: L.$("#income-note").value.trim() || null,
+      };
+
+      const saveBtn = L.$("#income-modal-save");
+      await L.withButtonLoading(saveBtn, "Saving…", async () => {
+        try {
+          if (id) {
+            await L.api.updateIncome(id, payload);
+          } else {
+            await L.api.createIncome(payload);
+          }
+          closeIncomeModal();
+          L.toast(id ? "Income updated." : "Income added.", "success");
+          await L.refreshData();
+          L.renderDashboard?.();
+          L.renderIncomesTable?.();
+        } catch (err) {
+          L.$("#income-error").textContent = err.message;
         }
-        closeIncomeModal();
-        L.toast(id ? "Income updated." : "Income added.", "success");
-        await L.refreshData();
-        L.renderDashboard();
-        L.renderIncomesTable();
-      } catch (err) {
-        L.$("#income-error").textContent = err.message;
-      }
-    })();
-  });
+      })();
+    });
+  }
+
+  if (hasModal) initModal();
 })();

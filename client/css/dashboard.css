@@ -32,6 +32,8 @@
   flex: 1;
 }
 .nav-tab {
+  display: block;
+  text-decoration: none;
   text-align: left;
   background: none;
   border: none;
@@ -86,6 +88,23 @@
   margin: 0 0 0.15rem;
 }
 .view-header h1 { font-size: 1.9rem; }
+
+/* ---------- header action buttons: identical position & size on every tab ---------- */
+.view-header .row-actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+.view-header .row-actions .btn {
+  min-width: 118px;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 0.6rem 1.1rem;
+  line-height: 1.2;
+}
+.view-header .row-actions .btn:last-child {
+  min-width: 152px;
+}
 
 /* ---------- stat row ---------- */
 .stat-row {
@@ -185,7 +204,7 @@
   background: var(--paper);
   color: var(--ink);
 }
-#filter-search { flex: 1; min-width: 160px; }
+.filter-bar input[type="text"] { flex: 1; min-width: 160px; }
 .filter-sep { color: var(--muted); font-size: 0.85rem; }
 
 /* ---------- ledger table ---------- */

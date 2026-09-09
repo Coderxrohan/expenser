@@ -26,9 +26,19 @@ async function fetchExpenses(token, { from, to } = {}) {
   return data || [];
 }
 
-// Everything a report needs: rows + totals + category breakdown.
-async function reportPack(token, { from, to } = {}) {
-  const rows = await fetchExpenses(token, { from, to });
+async function fetchIncomes(token, { from, to } = {}) {
+  let query = clientFor(token)
+    .from("incomes")
+    .select("*")
+    .order("income_date", { ascending: true });
+  if (from) query = query.gte("income_date", from);
+  if (to) query = query.lte("income_date", to);
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  return data || [];
+}
+
+function buildPack(rows, from, to) {
   const total = rows.reduce((s, e) => s + Number(e.amount), 0);
   const byCategory = {};
   const byMethod = {};
@@ -50,6 +60,21 @@ async function reportPack(token, { from, to } = {}) {
       .sort((a, b) => b.amount - a.amount),
     rows,
   };
+}
+
+// Everything an expenses report needs: rows + totals + breakdowns.
+async function reportPack(token, { from, to } = {}) {
+  return buildPack(await fetchExpenses(token, { from, to }), from, to);
+}
+
+// Income report — rows normalized to the expense shape (expense_date)
+// so the PDF/CSV services can render both uniformly.
+async function incomePack(token, { from, to } = {}) {
+  const rows = (await fetchIncomes(token, { from, to })).map((r) => ({
+    ...r,
+    expense_date: r.income_date,
+  }));
+  return buildPack(rows, from, to);
 }
 
 // ---- backup / restore ------------------------------------------
