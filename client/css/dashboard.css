@@ -447,3 +447,9 @@
   .view-header .row-actions .btn { flex: 1; min-width: 0; }
   .view-header .row-actions .btn:last-child { min-width: 0; }
 }
+
+/* donut center text must fit the smaller mobile donut */
+@media (max-width: 860px) {
+  .donut-center-figure { font-size: 0.95rem; }
+  .donut-center-label { font-size: 0.65rem; }
+}

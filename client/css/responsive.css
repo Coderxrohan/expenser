@@ -5,6 +5,10 @@
    scales down without changing the arrangement.
    ============================================================ */
 
+/* desktop: never show the mobile topbar or backdrop
+   (must come BEFORE the media query below so its display:flex wins) */
+.mobile-topbar, .nav-backdrop { display: none; }
+
 /* ---------- phones & tablets: hamburger + slide-in drawer ---------- */
 @media (max-width: 860px) {
   .app-shell { grid-template-columns: 1fr; }
@@ -106,9 +110,6 @@
   .cat-add-form, .tg-form { flex-wrap: wrap; }
   .cat-add-form input, .tg-form input { min-width: 0; }
 }
-
-/* desktop: never show the mobile topbar or backdrop */
-.mobile-topbar, .nav-backdrop { display: none; }
 
 /* ---------- very small phones ---------- */
 @media (max-width: 520px) {
