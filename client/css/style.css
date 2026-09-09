@@ -248,8 +248,8 @@ button, input, select {
 .modal h2 { margin-bottom: 1.25rem; font-size: 1.3rem; }
 .modal-sm { max-width: 360px; }
 .confirm-message { color: var(--muted); font-size: 0.92rem; margin: -0.5rem 0 0.5rem; }
-#expense-form { display: flex; flex-direction: column; gap: 1rem; }
-#expense-form label {
+#expense-form, #income-form { display: flex; flex-direction: column; gap: 1rem; }
+#expense-form label, #income-form label {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
@@ -257,7 +257,8 @@ button, input, select {
   color: var(--muted);
   font-weight: 600;
 }
-#expense-form input, #expense-form select {
+#expense-form input, #expense-form select,
+#income-form input, #income-form select {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 0.6rem 0.7rem;

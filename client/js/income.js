@@ -96,6 +96,7 @@
   }
 
   L.$("#add-income-btn").addEventListener("click", () => openIncomeModal());
+  L.$("#quick-add-income-btn").addEventListener("click", () => openIncomeModal());
   L.$("#income-modal-cancel").addEventListener("click", closeIncomeModal);
   L.$("#income-modal").addEventListener("click", (e) => {
     if (e.target.id === "income-modal") closeIncomeModal();
