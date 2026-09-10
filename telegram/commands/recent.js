@@ -7,7 +7,7 @@ module.exports = async function recent(message, { sendMessage }) {
 
   const { data, error } = await supabase
     .from("transactions")
-    .select("amount, category, note, expense_date")
+    .select("amount, category, name, note, expense_date")
       .eq("type", "expense")
     .eq("user_id", user_id)
     .order("expense_date", { ascending: false })
@@ -15,7 +15,7 @@ module.exports = async function recent(message, { sendMessage }) {
   if (error) throw new Error(error.message);
 
   const lines = (data || []).map(
-    (e) => `• ${e.expense_date} — <b>${e.category}</b>${e.note ? ` (${e.note})` : ""}: ₹${e.amount}`
+    (e) => `• ${e.expense_date} — <b>${e.name || e.note || e.category}</b> (${e.category}): ₹${e.amount}`
   );
 
   await sendMessage(

@@ -17,7 +17,7 @@
     const to = L.$("#income-filter-to").value;
 
     return L.state.incomes.filter((e) => {
-      if (search && !(e.note || "").toLowerCase().includes(search)) return false;
+      if (search && !`${e.name || ""} ${e.note || ""}`.toLowerCase().includes(search)) return false;
       if (category && e.category !== category) return false;
       if (from && e.income_date < from) return false;
       if (to && e.income_date > to) return false;
@@ -39,7 +39,7 @@
       <tr data-id="${e.id}">
         <td>${L.formatDate(e.income_date)}</td>
         <td><span class="category-tag">${L.escapeHtml(e.category)}</span></td>
-        <td>${e.note ? L.escapeHtml(e.note) : "—"}</td>
+        <td>${e.name ? L.escapeHtml(e.name) : L.escapeHtml(e.category)}</td>
         <td class="align-right amount-cell">+${L.money(e.amount)}</td>
         <td class="align-right">
           <div class="row-actions">
@@ -71,7 +71,7 @@
     if (btn.dataset.action === "edit") {
       openIncomeModal(income);
     } else if (btn.dataset.action === "delete") {
-      const label = income ? (income.note || income.category) : "this entry";
+      const label = income ? (income.name || income.note || income.category) : "this entry";
       const ok = await L.askConfirm(`This removes "${label}" for good. It can't be undone.`, {
         title: "Delete income?",
       });
@@ -106,6 +106,7 @@
       L.$("#income-modal-title").textContent = income ? "Edit income" : "Add income";
       L.$("#income-id").value = income ? income.id : "";
       L.$("#income-amount").value = income ? income.amount : "";
+      L.$("#income-name").value = income ? (income.name || "") : "";
       L.$("#income-category").value = income ? income.category : L.INCOME_CATEGORIES[0];
       L.$("#income-method").value = income?.payment_method || "cash";
       L.$("#income-date").value = income ? income.income_date : L.todayISO();
@@ -131,6 +132,7 @@
       const id = L.$("#income-id").value;
       const payload = {
         amount: parseFloat(L.$("#income-amount").value),
+        name: L.$("#income-name").value.trim(),
         category: L.$("#income-category").value,
         payment_method: L.$("#income-method").value,
         income_date: L.$("#income-date").value,

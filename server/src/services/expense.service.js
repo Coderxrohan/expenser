@@ -24,7 +24,7 @@ async function listExpenses(token, { from, to, category, search, limit = 500 } =
   if (from) query = query.gte("expense_date", from);
   if (to) query = query.lte("expense_date", to);
   if (category) query = query.eq("category", category);
-  if (search) query = query.ilike("note", `%${search}%`);
+  if (search) query = query.or(`name.ilike.%${search}%,note.ilike.%${search}%`);
 
   const { data, error } = await query;
   if (error) throw new Error(error.message);
@@ -115,10 +115,10 @@ async function analytics(token, now = new Date()) {
   const thisCat = sumBy(thisMonth, (e) => e.category);
   const lastCat = sumBy(lastMonth, (e) => e.category);
 
-  // top merchants from notes
+  // top names (what money was spent on)
   const byMerchant = sumBy(
-    thisMonth.filter((e) => e.note),
-    (e) => e.note
+    thisMonth.filter((e) => e.name || e.note),
+    (e) => e.name || e.note
   );
   const topMerchants = Object.entries(byMerchant)
     .map(([merchant, amount]) => ({ merchant, amount }))

@@ -12,6 +12,14 @@
 /* ---------- phones & tablets: hamburger + slide-in drawer ---------- */
 @media (max-width: 860px) {
   .app-shell { grid-template-columns: 1fr; }
+  /* the desktop icon-rail collapse never applies to the mobile drawer */
+  .sidebar-collapsed .app-shell { grid-template-columns: 1fr; }
+  .sidebar-collapsed .brand-name, .sidebar-collapsed .nav-group-label,
+  .sidebar-collapsed .nav-label, .sidebar-collapsed .user-meta,
+  .sidebar-collapsed .user-chevron { display: revert; }
+  .sidebar-collapsed .nav-tab { justify-content: flex-start; padding: 0.5rem 0.625rem; }
+  .sidebar-collapsed .user-trigger { justify-content: flex-start; padding: 0.4rem 0.5rem; }
+  .sidebar-collapse { display: none; }
 
   /* slim top bar with the hamburger */
   .mobile-topbar {
@@ -33,7 +41,7 @@
     align-items: baseline;
     gap: 0.4rem;
   }
-  .mobile-title .brand-mark { font-size: 1.2rem; color: var(--brass); }
+  .mobile-title .brand-logo { width: 1.45rem; height: 1.45rem; border-radius: 5px; }
   .hamburger {
     background: none;
     border: none;

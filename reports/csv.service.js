@@ -8,8 +8,8 @@ function csvEscape(value) {
   return s;
 }
 
-function buildCsv(rows, columns = ["expense_date", "category", "amount", "payment_method", "note"]) {
-  const header = ["date", "category", "amount", "payment_method", "note"];
+function buildCsv(rows, columns = ["expense_date", "category", "name", "amount", "payment_method", "note"]) {
+  const header = ["date", "category", "name", "amount", "payment_method", "note"];
   const lines = [header.join(",")];
   for (const r of rows) {
     lines.push(columns.map((c) => csvEscape(r[c])).join(","));

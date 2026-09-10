@@ -56,11 +56,11 @@ function streamReport(pack, res) {
 
   // ledger table
   doc.font("Helvetica-Bold").fontSize(11).text("Transactions").moveDown(0.5);
-  const cols = { date: 50, category: 150, note: 250, amount: 470 };
+  const cols = { date: 50, category: 150, name: 250, amount: 470 };
   doc.fontSize(9);
   doc.text("Date", cols.date);
   doc.text("Category", cols.category);
-  doc.text("Note", cols.note);
+  doc.text("Name", cols.name);
   doc.text("Amount", cols.amount, doc.y, { align: "right" });
   doc.moveDown(0.4);
 
@@ -71,7 +71,7 @@ function streamReport(pack, res) {
     doc.fontSize(8.5);
     doc.text(e.expense_date, cols.date, lineY);
     doc.text(e.category, cols.category, lineY, { width: 90, ellipsis: true });
-    doc.text(e.note || "—", cols.note, lineY, { width: 205, ellipsis: true });
+    doc.text(e.name || e.note || "—", cols.name, lineY, { width: 205, ellipsis: true });
     doc.text(money(e.amount), cols.amount, lineY, { align: "right" });
     doc.y = lineY + 14;
   }

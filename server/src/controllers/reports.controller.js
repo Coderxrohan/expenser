@@ -92,6 +92,7 @@ exports.bankImport = async (req, res) => {
       user_id: req.user.id,
       amount,
       category: "Other",
+      name: String(description).replace(/\s+/g, " ").trim().slice(0, 120) || "Bank import",
       note: String(description).slice(0, 200),
       expense_date: String(date).slice(0, 10),
       payment_method: "bank_transfer",

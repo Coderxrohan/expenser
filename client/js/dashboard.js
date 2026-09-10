@@ -133,7 +133,7 @@
     recentEl.innerHTML = recent.length ? recent.map((e) => `
       <div class="recent-row">
         <div>
-          <div>${e.note ? L.escapeHtml(e.note) : L.escapeHtml(e.category)}</div>
+          <div>${e.name ? L.escapeHtml(e.name) : L.escapeHtml(e.category)}</div>
           <div class="recent-meta">${L.escapeHtml(e.category)} · ${L.formatDate(e.expense_date)}</div>
         </div>
         <div class="recent-amount">${L.money(e.amount)}</div>

@@ -103,6 +103,7 @@ async function importBackup(token, userId, backup) {
     user_id: userId,
     amount: Number(e.amount),
     category: e.category || "Other",
+    name: String(e.name || e.note || e.category || "Imported expense").replace(/\s+/g, " ").trim().slice(0, 120),
     note: e.note || null,
     expense_date: e.expense_date || e.date,
     payment_method: e.payment_method || "cash",

@@ -76,6 +76,7 @@ async function confirmDraft(sendMessage, chatId) {
       user_id: d.user_id,
       amount: d.total,
       category: d.category,
+      name: d.merchant || "Receipt",
       note: d.merchant,
       expense_date: d.date || localISO(),
       payment_method: d.payment_method,

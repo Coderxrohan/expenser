@@ -3,12 +3,15 @@
 // ============================================================
 const expenseService = require("../services/expense.service");
 const {
-  parseAmount, parseDate, parseCategory, parsePaymentMethod, cleanString, localISO,
+  parseAmount, parseDate, parseCategory, parsePaymentMethod, parseName, cleanString, localISO,
 } = require("../utils/validation");
 
 function buildPayload(body, { partial = false } = {}) {
   const payload = {};
   if (!partial || body.amount !== undefined) payload.amount = parseAmount(body.amount);
+  // The name is what the expense was for — required on create,
+  // optional (only changed when sent) on update.
+  if (!partial || body.name !== undefined) payload.name = parseName(body.name);
   if (!partial || body.category !== undefined) payload.category = parseCategory(body.category);
   if (!partial || body.expense_date !== undefined) {
     payload.expense_date = parseDate(body.expense_date) || localISO();

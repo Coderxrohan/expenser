@@ -50,8 +50,9 @@ async function monthlySummary(summary) {
 }
 
 async function expenseConfirmation(expense) {
+  const label = expense.name || expense.note || expense.category;
   await push(
-    `✅ Added ₹${expense.amount} — <b>${expense.category}</b>${expense.note ? ` (${expense.note})` : ""} on ${expense.expense_date}`
+    `✅ Added ₹${expense.amount} — <b>${label}</b> (${expense.category}) on ${expense.expense_date}`
   );
 }
 

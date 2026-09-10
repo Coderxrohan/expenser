@@ -37,7 +37,7 @@ async function listIncomes(token, { from, to, category, search, limit = 500 } = 
   if (from) query = query.gte("expense_date", from);
   if (to) query = query.lte("expense_date", to);
   if (category) query = query.eq("category", category);
-  if (search) query = query.ilike("note", `%${search}%`);
+  if (search) query = query.or(`name.ilike.%${search}%,note.ilike.%${search}%`);
 
   const { data, error } = await query;
   if (error) throw new Error(error.message);

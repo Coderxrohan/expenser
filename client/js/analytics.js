@@ -44,7 +44,7 @@
               <span>${L.escapeHtml(m.merchant)}</span>
               <strong>${L.money(m.amount)}</strong>
             </div>`).join("")
-        : `<p class="empty-state">No merchants with notes this month.</p>`;
+        : `<p class="empty-state">No entries with names this month.</p>`;
 
       L.$("#compare-tbody").innerHTML = (a.categoryComparison || []).length
         ? a.categoryComparison

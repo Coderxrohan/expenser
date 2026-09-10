@@ -205,6 +205,237 @@ window.Ledger = {
     L.$("#app-shell")?.classList.remove("hidden");
   };
 
+  // ---------- sidebar user (avatar + menu + edit profile) ----------
+  // Profile lives in Supabase: public.profiles (display_name, avatar_url),
+  // images in the public `avatars` storage bucket under <user_id>/.
+  L.profile = null;
+  const PROFILE_CACHE_KEY = "ledger_profile";
+
+  const ICONS = {
+    chevronUp: `<path d="m18 15-6-6-6 6"/>`,
+    user: `<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>`,
+    logout: `<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>`,
+    image: `<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>`,
+    trash: `<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>`,
+  };
+  const svg = (paths) =>
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+
+  function initialsFor() {
+    const name = (L.profile?.display_name || L.user?.email || "?").trim();
+    const parts = name.split(/[\s._@-]+/).filter(Boolean);
+    const a = parts[0]?.[0] || "?";
+    const b = parts[1]?.[0] || parts[0]?.[1] || "";
+    return (a + b).toUpperCase();
+  }
+
+  // shadcn-style avatar: photo (when set & loaded) over initials fallback,
+  // green status badge bottom-right.
+  function avatarHtml(url, cls = "") {
+    return `<span class="avatar ${cls}">` +
+      (url ? `<img src="${L.escapeHtml(url)}" alt="" onerror="this.remove()" />` : "") +
+      `<span class="avatar-fallback">${L.escapeHtml(initialsFor())}</span>` +
+      `<span class="avatar-badge"></span></span>`;
+  }
+
+  function cacheProfile() {
+    try { localStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(L.profile)); } catch {}
+  }
+
+  async function loadProfile() {
+    try {
+      const { data, error } = await L.sb.from("profiles").select("*").eq("id", L.user.id).maybeSingle();
+      if (error) throw error;
+      if (data) { L.profile = data; cacheProfile(); }
+    } catch {
+      // profiles table likely missing (migration 012 not run) — fall back to email
+    }
+  }
+
+  async function saveProfile({ display_name, avatar_url }) {
+    const row = {
+      id: L.user.id,
+      display_name: display_name || null,
+      avatar_url: avatar_url ?? L.profile?.avatar_url ?? null,
+      updated_at: new Date().toISOString(),
+    };
+    const { data, error } = await L.sb.from("profiles").upsert(row).select().single();
+    if (error) {
+      if (/relation .*profiles.* does not exist/i.test(error.message)) {
+        throw new Error("Run database/migrations/012_profiles.sql in Supabase first.");
+      }
+      throw new Error(error.message);
+    }
+    L.profile = data;
+    cacheProfile();
+    renderSidebarUser();
+    return data;
+  }
+
+  function renderSidebarUser() {
+    const el = L.$("#sidebar-user");
+    if (!el || !L.user) return;
+    const name = L.profile?.display_name || L.user.email;
+    el.innerHTML = `
+      <button type="button" class="user-trigger" id="user-trigger" aria-haspopup="menu" aria-expanded="false" title="${L.escapeHtml(name)}">
+        ${avatarHtml(L.profile?.avatar_url)}
+        <span class="user-meta">
+          <span class="user-name">${L.escapeHtml(name)}</span>
+          <span class="user-email">${L.escapeHtml(L.user.email)}</span>
+        </span>
+        <span class="user-chevron">${svg(ICONS.chevronUp)}</span>
+      </button>
+      <div class="user-menu hidden" id="user-menu" role="menu">
+        <button type="button" class="user-menu-item" data-action="edit-profile">${svg(ICONS.user)} Edit profile</button>
+        <button type="button" class="user-menu-item user-menu-danger" data-action="logout">${svg(ICONS.logout)} Log out</button>
+      </div>`;
+
+    const trigger = L.$("#user-trigger");
+    const menu = L.$("#user-menu");
+    trigger.addEventListener("click", () => {
+      const open = menu.classList.toggle("hidden") === false;
+      trigger.setAttribute("aria-expanded", String(open));
+    });
+    document.addEventListener("click", (e) => {
+      if (!menu.classList.contains("hidden") && !e.target.closest("#user-trigger") && !e.target.closest("#user-menu")) {
+        menu.classList.add("hidden");
+      }
+    });
+    menu.addEventListener("click", async (e) => {
+      const item = e.target.closest("[data-action]");
+      if (!item) return;
+      menu.classList.add("hidden");
+      if (item.dataset.action === "logout") {
+        await L.sb.auth.signOut();
+        location.href = "login.html";
+      } else if (item.dataset.action === "edit-profile") {
+        openProfileModal();
+      }
+    });
+  }
+
+  // ---- edit profile modal (avatar upload/remove + display name) ----
+  // undefined = unchanged, null = removed, string = new upload
+  let pendingAvatarUrl;
+
+  function ensureProfileModal() {
+    if (L.$("#profile-modal")) return;
+    document.body.insertAdjacentHTML("beforeend", `
+      <div id="profile-modal" class="modal-overlay hidden">
+        <div class="modal modal-sm">
+          <h2>Edit profile</h2>
+          <form id="profile-form">
+            <div class="profile-avatar-row">
+              <span id="profile-avatar-preview"></span>
+              <div class="profile-avatar-actions">
+                <input type="file" id="profile-avatar-input" accept="image/*" hidden />
+                <button type="button" class="btn btn-ghost btn-sm" id="profile-avatar-btn">${svg(ICONS.image)} Upload photo</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="profile-avatar-remove">${svg(ICONS.trash)} Remove</button>
+              </div>
+            </div>
+            <label>Display name
+              <input type="text" id="profile-name" maxlength="60" placeholder="How should we call you?" />
+            </label>
+            <p class="auth-error" id="profile-error"></p>
+            <div class="modal-actions">
+              <button type="button" class="btn btn-ghost" id="profile-cancel">Cancel</button>
+              <button type="submit" class="btn btn-primary" id="profile-save">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>`);
+
+    const renderPreview = () => {
+      const url = pendingAvatarUrl === undefined ? (L.profile?.avatar_url || null) : pendingAvatarUrl;
+      L.$("#profile-avatar-preview").innerHTML = avatarHtml(url, "avatar-lg");
+    };
+
+    L.$("#profile-avatar-btn").addEventListener("click", () => L.$("#profile-avatar-input").click());
+    L.$("#profile-avatar-input").addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      L.$("#profile-error").textContent = "";
+      if (file.size > 2 * 1024 * 1024) {
+        L.$("#profile-error").textContent = "Photo must be under 2 MB.";
+        e.target.value = "";
+        return;
+      }
+      const btn = L.$("#profile-avatar-btn");
+      btn.disabled = true;
+      try {
+        const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+        const path = `${L.user.id}/avatar.${ext}`;
+        const { error } = await L.sb.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
+        if (error) {
+          if (/bucket not found/i.test(error.message)) throw new Error("Run database/migrations/012_profiles.sql in Supabase first (creates the avatars bucket).");
+          throw new Error(error.message);
+        }
+        const { data } = L.sb.storage.from("avatars").getPublicUrl(path);
+        pendingAvatarUrl = `${data.publicUrl}?v=${Date.now()}`; // bust the cached photo
+        renderPreview();
+      } catch (err) {
+        L.$("#profile-error").textContent = err.message;
+      } finally {
+        btn.disabled = false;
+        e.target.value = "";
+      }
+    });
+    L.$("#profile-avatar-remove").addEventListener("click", () => {
+      pendingAvatarUrl = null;
+      renderPreview();
+    });
+
+    L.$("#profile-cancel").addEventListener("click", () => L.$("#profile-modal").classList.add("hidden"));
+    L.$("#profile-modal").addEventListener("click", (e) => {
+      if (e.target.id === "profile-modal") L.$("#profile-modal").classList.add("hidden");
+    });
+
+    L.$("#profile-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      L.$("#profile-error").textContent = "";
+      const saveBtn = L.$("#profile-save");
+      saveBtn.disabled = true;
+      try {
+        await saveProfile({
+          display_name: L.$("#profile-name").value.trim(),
+          avatar_url: pendingAvatarUrl,
+        });
+        L.toast("Profile updated.", "success");
+        L.$("#profile-modal").classList.add("hidden");
+      } catch (err) {
+        L.$("#profile-error").textContent = err.message;
+      } finally {
+        saveBtn.disabled = false;
+      }
+    });
+  }
+
+  function openProfileModal() {
+    ensureProfileModal();
+    L.$("#profile-error").textContent = "";
+    L.$("#profile-name").value = L.profile?.display_name || "";
+    pendingAvatarUrl = undefined;
+    L.$("#profile-avatar-preview").innerHTML = avatarHtml(L.profile?.avatar_url || null, "avatar-lg");
+    L.$("#profile-modal").classList.remove("hidden");
+  }
+
+  // ---------- sidebar collapse (shadcn-style icon rail) ----------
+  function initSidebarCollapse() {
+    const btn = L.$("#sidebar-collapse-btn");
+    if (!btn) return;
+    try {
+      if (localStorage.getItem("ledger_sidebar_collapsed") === "1") {
+        document.body.classList.add("sidebar-collapsed");
+        btn.title = "Expand sidebar";
+      }
+    } catch {}
+    btn.addEventListener("click", () => {
+      const on = document.body.classList.toggle("sidebar-collapsed");
+      btn.title = on ? "Expand sidebar" : "Collapse sidebar";
+      try { localStorage.setItem("ledger_sidebar_collapsed", on ? "1" : "0"); } catch {}
+    });
+  }
+
   // ---------- boot ----------
   document.addEventListener("DOMContentLoaded", async () => {
     L.populateCategorySelects();
@@ -218,14 +449,7 @@ window.Ledger = {
       return;
     }
 
-    const logoutBtn = L.$("#logout-btn");
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", async () => {
-        await L.sb.auth.signOut();
-        location.href = "login.html";
-      });
-    }
-
+    // logout now lives in the sidebar user menu (rendered below)
     const { data } = await L.sb.auth.getSession();
     const user = data?.session?.user;
     if (!user) {
@@ -233,7 +457,14 @@ window.Ledger = {
       return;
     }
     L.user = user;
-    L.$("#user-email").textContent = user.email;
+
+    initSidebarCollapse();
+
+    // paint the cached profile instantly, then revalidate
+    try { L.profile = JSON.parse(localStorage.getItem(PROFILE_CACHE_KEY) || "null"); } catch {}
+    renderSidebarUser();
+    await loadProfile();
+    renderSidebarUser();
 
     if (!L.CONFIG.supabaseUrl || !L.CONFIG.supabaseAnonKey) {
       L.toast('Setup incomplete — check config / .env.', "error");

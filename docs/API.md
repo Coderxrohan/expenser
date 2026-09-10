@@ -20,7 +20,7 @@ Returns `{ ok: true, ts: "…" }`.
 ## Expenses
 
 ### `GET /expenses`
-Query params: `from`, `to` (YYYY-MM-DD), `category`, `search` (matches note),
+Query params: `from`, `to` (YYYY-MM-DD), `category`, `search` (matches name or note),
 `limit` (max 1000). Returns `{ expenses: [...] }` sorted by date desc.
 
 ### `GET /expenses/:id`
@@ -32,14 +32,16 @@ Body:
 ```json
 {
   "amount": 250.00,
+  "name": "Lunch with team",
   "category": "Food",
   "expense_date": "2026-09-09",
-  "note": "lunch",
+  "note": "optional extra detail",
   "payment_method": "upi",
   "currency": "INR"
 }
 ```
 
+`name` is required (max 120 chars) — what the expense was for.
 `category` must be one of: Food, Transport, Shopping, Bills, Entertainment,
 Health, Education, Other. `payment_method` must be one of: cash, upi,
 credit_card, debit_card, bank_transfer, wallet. Returns `201 { expense }`.
@@ -58,7 +60,7 @@ Full analytics pack for the current month:
 - `dailySeries` — `[{ date, amount }]` for the month
 - `byCategory` — `[{ category, amount }]`
 - `categoryComparison` — `[{ category, thisMonth, lastMonth }]`
-- `topMerchants` — `[{ merchant, amount }]` (from notes)
+- `topMerchants` — `[{ merchant, amount }]` (from names)
 
 ## Incomes
 
@@ -66,8 +68,8 @@ Same shape as expenses, minus payment method. Income categories: Salary,
 Freelance, Business, Investment, Gift, Other.
 
 ### `GET /incomes`
-Query params: `from`, `to` (YYYY-MM-DD), `category`, `search`, `limit`.
-Returns `{ incomes: [...] }` sorted by date desc.
+Query params: `from`, `to` (YYYY-MM-DD), `category`, `search` (matches name or note),
+`limit`. Returns `{ incomes: [...] }` sorted by date desc.
 
 ### `GET /incomes/:id`
 Returns `{ income: {...} }` or 404.
@@ -78,14 +80,15 @@ Body:
 ```json
 {
   "amount": 50000.00,
+  "name": "September salary",
   "category": "Salary",
   "income_date": "2026-09-01",
-  "note": "September payroll",
+  "note": "optional extra detail",
   "currency": "INR"
 }
 ```
 
-Returns `201 { income }`.
+`name` is required (max 120 chars). Returns `201 { income }`.
 
 ### `PATCH /incomes/:id`
 Partial update — any subset of the POST fields. Returns `{ income }`.

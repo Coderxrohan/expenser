@@ -9,7 +9,7 @@ module.exports = async function today(message, { sendMessage }) {
 
   const { data, error } = await supabase
     .from("transactions")
-    .select("amount, category, note")
+    .select("amount, category, name, note")
       .eq("type", "expense")
     .eq("user_id", user_id)
     .eq("expense_date", day)
@@ -17,7 +17,7 @@ module.exports = async function today(message, { sendMessage }) {
   if (error) throw new Error(error.message);
 
   const total = (data || []).reduce((s, e) => s + Number(e.amount), 0);
-  const lines = (data || []).map((e) => `• ${e.category}${e.note ? ` — ${e.note}` : ""}: ₹${e.amount}`);
+  const lines = (data || []).map((e) => `• ${e.category}${e.name || e.note ? ` — ${e.name || e.note}` : ""}: ₹${e.amount}`);
 
   await sendMessage(
     message.chat.id,

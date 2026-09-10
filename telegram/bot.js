@@ -115,7 +115,7 @@ async function setCommands() {
   await callApi("setMyCommands", {
     commands: [
       { command: "start", description: "Link this chat & show help" },
-      { command: "add", description: "/add 500 food [note] — log an expense" },
+      { command: "add", description: "/add 500 food [name] — log an expense" },
       { command: "balance", description: "Budget usage this month" },
       { command: "today", description: "Today's spending" },
       { command: "month", description: "This month's summary" },

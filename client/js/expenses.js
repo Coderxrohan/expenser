@@ -16,7 +16,7 @@
     const to = L.$("#filter-to").value;
 
     return L.state.expenses.filter((e) => {
-      if (search && !(e.note || "").toLowerCase().includes(search)) return false;
+      if (search && !`${e.name || ""} ${e.note || ""}`.toLowerCase().includes(search)) return false;
       if (category && e.category !== category) return false;
       if (from && e.expense_date < from) return false;
       if (to && e.expense_date > to) return false;
@@ -35,7 +35,7 @@
       <tr data-id="${e.id}">
         <td>${L.formatDate(e.expense_date)}</td>
         <td><span class="category-tag">${L.escapeHtml(e.category)}</span></td>
-        <td>${e.note ? L.escapeHtml(e.note) : "—"}</td>
+        <td>${e.name ? L.escapeHtml(e.name) : L.escapeHtml(e.category)}</td>
         <td class="align-right amount-cell">${L.money(e.amount)}</td>
         <td class="align-right">
           <div class="row-actions">
@@ -68,7 +68,7 @@
     if (btn.dataset.action === "edit") {
       openExpenseModal(expense);
     } else if (btn.dataset.action === "delete") {
-      const label = expense ? (expense.note || expense.category) : "this entry";
+      const label = expense ? (expense.name || expense.note || expense.category) : "this entry";
       const ok = await L.askConfirm(`This removes "${label}" for good. It can't be undone.`, {
         title: "Delete expense?",
       });
@@ -103,6 +103,7 @@
       L.$("#modal-title").textContent = expense ? "Edit expense" : "Add expense";
       L.$("#expense-id").value = expense ? expense.id : "";
       L.$("#expense-amount").value = expense ? expense.amount : "";
+      L.$("#expense-name").value = expense ? (expense.name || "") : "";
       L.$("#expense-category").value = expense ? expense.category : L.CATEGORIES[0];
       L.$("#expense-method").value = expense?.payment_method || "cash";
       L.$("#expense-date").value = expense ? expense.expense_date : L.todayISO();
@@ -128,6 +129,7 @@
       const id = L.$("#expense-id").value;
       const payload = {
         amount: parseFloat(L.$("#expense-amount").value),
+        name: L.$("#expense-name").value.trim(),
         category: L.$("#expense-category").value,
         payment_method: L.$("#expense-method").value,
         expense_date: L.$("#expense-date").value,

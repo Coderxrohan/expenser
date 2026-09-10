@@ -23,6 +23,14 @@ function cleanString(v, { max = 200, field = "value" } = {}) {
   return s;
 }
 
+// The short name of an expense/income (what it was for) — required.
+function parseName(v, field = "name") {
+  const s = String(v ?? "").trim().replace(/\s+/g, " ");
+  assert(s, `${field} is required.`);
+  assert(s.length <= 120, `${field} must be at most 120 characters.`);
+  return s;
+}
+
 function parseAmount(v, field = "amount") {
   const n = Number(v);
   assert(Number.isFinite(n) && n > 0, `${field} must be a positive number.`);
@@ -62,6 +70,7 @@ module.exports = {
   PAYMENT_METHODS,
   assert,
   cleanString,
+  parseName,
   parseAmount,
   parseDate,
   parseCategory,
