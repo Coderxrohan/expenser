@@ -3,7 +3,7 @@
 // Receipt photo → OCR → confirm → create expense (+ stored receipt).
 // ============================================================
 const { client, userIdForChat } = require("../services/expense.service");
-const { localISO } = require("../server/src/utils/validation");
+const { localISO } = require("../../server/src/utils/validation");
 const notification = require("../services/notification.service");
 const ocr = require("../../ocr/ocr.service");
 const logger = require("../../server/src/utils/logger");

@@ -168,6 +168,7 @@ export function AppProvider({ children }) {
     refreshData,
     dbNotice,
     loadCachedState,
+    toasts,
     toast,
     askConfirm,
     confirmState,
