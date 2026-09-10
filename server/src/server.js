@@ -1,9 +1,8 @@
 // ============================================================
-// Ledger — server entry point
-// Serves the API under /api and the client/ static files.
+// Ledger — API entry point
+// Owns the /api namespace; the Next.js app serves the frontend.
 // Run: node server/src/server.js  (from the repo root)
 // ============================================================
-const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
@@ -48,25 +47,8 @@ try {
   console.warn("  ⚠  Telegram bot not mounted:", e.message);
 }
 
-// ---- static client ----
-const clientDir = path.join(__dirname, "../../client");
-
-// config.js is generated from .env — real keys never live in source.
-app.get("/config.js", (req, res) => {
-  const config = {
-    supabaseUrl: env.supabaseUrl,
-    supabaseAnonKey: env.supabaseAnonKey,
-    clerkPublishableKey: process.env.CLERK_PUBLISHABLE_KEY || "",
-  };
-  res
-    .type("application/javascript")
-    .set("Cache-Control", "no-store")
-    .send("// Generated from .env — do not edit. Change values in .env and restart.\n" +
-      "window.LEDGER_CONFIG = " + JSON.stringify(config, null, 2) + ";\n");
-});
-
-app.use(express.static(clientDir));
-app.get("/", (req, res) => res.sendFile(path.join(clientDir, "index.html")));
+// The frontend is the Next.js app at the repo root (app/). This server
+// only owns the /api namespace; in dev, next.config.mjs proxies /api here.
 
 app.use(notFound);
 app.use(errorHandler);

@@ -1,24 +1,32 @@
 {
   "name": "ledger",
   "version": "1.0.0",
-  "description": "Ledger \u2014 expense manager: dashboard, budgets, analytics, Telegram bot, receipt OCR",
+  "description": "Ledger — expense manager: dashboard, budgets, analytics, Telegram bot, receipt OCR",
   "private": true,
   "scripts": {
     "install:all": "npm install --prefix server && npm install",
-    "start": "node server/src/server.js",
-    "dev": "node --watch server/src/server.js",
+    "dev": "concurrently -n api,web -c yellow,cyan \"node --watch server/src/server.js\" \"next dev -p 3000\"",
+    "dev:api": "node --watch server/src/server.js",
+    "dev:web": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "serve:api": "node server/src/server.js",
     "bot": "node telegram/bot.js",
     "db:setup": "npm run db:setup --prefix server",
     "test": "node --test"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
+    "concurrently": "^10.0.5",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-rate-limit": "^7.4.0",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "pdfkit": "^0.15.0"
+    "next": "^15.5.25",
+    "pdfkit": "^0.15.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
   }
 }
